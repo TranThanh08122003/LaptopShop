@@ -1,6 +1,5 @@
 package com.TCL.example.service;
 
-
 import com.TCL.example.domain.*;
 import com.TCL.example.domain.DTO.ProductCriteriaDTO;
 import com.TCL.example.repository.*;
@@ -10,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import com.TCL.example.service.UserService;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -65,20 +65,22 @@ public class ProductService {
         }
 
         Specification<Product> combinedSpec = Specification.where(null);
-        if (productCriteriaDTO.getTarget().isPresent()) {
-            combinedSpec = combinedSpec.and(ProductSpecs.matchListTarget(productCriteriaDTO.getTarget().get()));
+        if (productCriteriaDTO.getTarget() != null && productCriteriaDTO.getTarget().isPresent()) {
+            Specification<Product> currentSpecs = ProductSpecs.matchListTarget(productCriteriaDTO.getTarget().get());
+            combinedSpec = combinedSpec.and(currentSpecs);
         }
-        if (productCriteriaDTO.getFactory().isPresent()) {
-            combinedSpec = combinedSpec.and(ProductSpecs.matchListFactory(productCriteriaDTO.getFactory().get()));
-        }
-        if (productCriteriaDTO.getPrice().isPresent()) {
-            combinedSpec = combinedSpec.and(this.buildPriceSpecification(productCriteriaDTO.getPrice().get()));
+        if (productCriteriaDTO.getFactory() != null && productCriteriaDTO.getFactory().isPresent()) {
+            Specification<Product> currentSpecs = ProductSpecs.matchListFactory(productCriteriaDTO.getFactory().get());
+            combinedSpec = combinedSpec.and(currentSpecs);
         }
 
+        if(productCriteriaDTO.getPrice() != null && productCriteriaDTO.getPrice().isPresent()){
+            Specification<Product> currentSpecs = this.buildPriceSpecification(productCriteriaDTO.getPrice().get());
+            combinedSpec = combinedSpec.and(currentSpecs);
+        }
 
         return this.productRepository.findAll(combinedSpec, page);
     }
-
 
     public Specification<Product>  buildPriceSpecification(List<String> price) {
         Specification<Product> combinedSpec = Specification.where(null);

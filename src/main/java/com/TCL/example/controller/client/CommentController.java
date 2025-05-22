@@ -4,8 +4,10 @@ package com.TCL.example.controller.client;
 import com.TCL.example.domain.Comment;
 import com.TCL.example.domain.request.CommentRequest;
 import com.TCL.example.service.CommentService;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
