@@ -2,6 +2,7 @@ package com.TCL.example.controller.admin;
 
 
 import com.TCL.example.domain.User;
+import com.TCL.example.service.MailService;
 import com.TCL.example.service.UploadService;
 import com.TCL.example.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,18 +28,19 @@ public class UserController {
     private final UserService userService;
     private final UploadService uploadService;
     private final PasswordEncoder passwordEncoder;
+    private final MailService mailService;
     private final HttpServletRequest request;
 
 
     public UserController(UserService userService,
                           UploadService uploadService,
                           PasswordEncoder passwordEncoder,
-
+                          MailService mailService,
                           HttpServletRequest request) {
         this.userService = userService;
         this.uploadService = uploadService;
         this.passwordEncoder = passwordEncoder;
-        //this.mailService = mailService;
+        this.mailService = mailService;
         this.request = request;
     }
 

@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.sql.Date;
 import java.sql.Timestamp;
@@ -17,6 +18,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = "role")  // <<--- thêm dòng này
 @Table(name = "users")
 public class User {
     @Id
@@ -24,7 +26,6 @@ public class User {
     private long id;
 
     @Email(message = "Email không hợp lệ", regexp = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")
-
     private String email;
 
     @NotNull
@@ -34,6 +35,7 @@ public class User {
     @NotNull
     @Size(min = 2, message = "Họ và tên phải có ít nhẩt 2 kí tự")
     private String fullName;
+
     private String address;
     private String phoneNumber;
     private String avatar;
@@ -55,5 +57,4 @@ public class User {
     @OneToOne(mappedBy = "user")
     @JsonIgnore
     private Cart cart;
-
 }

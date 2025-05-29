@@ -88,46 +88,46 @@
         // let timeLeft = 5;
 
 
-        <%--function updateCountdown(timeLeft) {--%>
-        <%--    const csrfToken = $('[name="${_csrf.parameterName}"]').val();--%>
-        <%--    const minutes = Math.floor(timeLeft / 60);--%>
-        <%--    const seconds = timeLeft % 60;--%>
-        <%--    if(seconds < 10){--%>
-        <%--        countdownElement.text(`Time left: ` + minutes + `: 0` + seconds);--%>
-        <%--    } else--%>
-        <%--        countdownElement.text(`Time left: ` + minutes + `: ` + seconds);--%>
-        <%--    timeLeft--;--%>
+        // <%--function updateCountdown(timeLeft) {--%>
+        // <%--    const csrfToken = $('[name="${_csrf.parameterName}"]').val();--%>
+        // <%--    const minutes = Math.floor(timeLeft / 60);--%>
+        // <%--    const seconds = timeLeft % 60;--%>
+        // <%--    if(seconds < 10){--%>
+        // <%--        countdownElement.text(`Time left: ` + minutes + `: 0` + seconds);--%>
+        // <%--    } else--%>
+        // <%--        countdownElement.text(`Time left: ` + minutes + `: ` + seconds);--%>
+        // <%--    timeLeft--;--%>
 
-        <%--    if (timeLeft >= 0) {--%>
-        <%--        setTimeout(updateCountdown, 1000);--%>
-        <%--    } else {--%>
-        <%--        countdownElement.text("Time's up!");--%>
-        <%--        submitBtn.prop('disabled', true);--%>
-        <%--        $.toast({--%>
-        <%--            text: "Hết thời gian xác thực, vui lòng gửi lại mã OTP",--%>
-        <%--            showHideTransition: 'slide',--%>
-        <%--            bgColor: 'red',--%>
-        <%--            textColor: 'white',--%>
-        <%--            allowToastClose: true,--%>
-        <%--            hideAfter: 5000,--%>
-        <%--            stack: 5,--%>
-        <%--            textAlign: 'left',--%>
-        <%--            position: 'top-right',--%>
-        <%--            icon: 'error'--%>
-        <%--        });--%>
-        <%--        submitResendBtn.css('display', 'block')--%>
-        <%--        $.ajax({--%>
-        <%--            url:`/forgot-password/delete/${email}`,--%>
-        <%--            type: 'POST',--%>
-        <%--            headers: {--%>
-        <%--                'X-CSRF-TOKEN': csrfToken // Gửi CSRF token trong header--%>
-        <%--            },--%>
-        <%--        });--%>
-        <%--    }--%>
-        <%--}--%>
+        // <%--    if (timeLeft >= 0) {--%>
+        // <%--        setTimeout(updateCountdown, 1000);--%>
+        // <%--    } else {--%>
+        // <%--        countdownElement.text("Time's up!");--%>
+        // <%--        submitBtn.prop('disabled', true);--%>
+        // <%--        $.toast({--%>
+        // <%--            text: "Hết thời gian xác thực, vui lòng gửi lại mã OTP",--%>
+        // <%--            showHideTransition: 'slide',--%>
+        // <%--            bgColor: 'red',--%>
+        // <%--            textColor: 'white',--%>
+        // <%--            allowToastClose: true,--%>
+        // <%--            hideAfter: 5000,--%>
+        // <%--            stack: 5,--%>
+        // <%--            textAlign: 'left',--%>
+        // <%--            position: 'top-right',--%>
+        // <%--            icon: 'error'--%>
+        // <%--        });--%>
+        // <%--        submitResendBtn.css('display', 'block')--%>
+        // <%--        $.ajax({--%>
+        // <%--            url:`/forgot-password/delete/${email}`,--%>
+        // <%--            type: 'POST',--%>
+        // <%--            headers: {--%>
+        // <%--                'X-CSRF-TOKEN': csrfToken // Gửi CSRF token trong header--%>
+        // <%--            },--%>
+        // <%--        });--%>
+        // <%--    }--%>
+        // <%--}--%>
 
         function updateCountdown(timeLeft) {
-            const csrfToken = $('[name="${_csrf.parameterName}"]').val();
+const csrfToken = $('[name="_csrf"]').val();
             const minutes = Math.floor(timeLeft / 60);
             const seconds = timeLeft % 60;
             if(seconds < 10){

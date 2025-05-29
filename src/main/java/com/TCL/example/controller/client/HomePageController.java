@@ -1,17 +1,14 @@
 package com.TCL.example.controller.client;
 
-//import com.ndc.laptopvn.domain.DTO.RegisterDTO;
-//import com.ndc.laptopvn.domain.Order;
-//import com.ndc.laptopvn.domain.Product;
-//import com.ndc.laptopvn.domain.User;
-//import com.ndc.laptopvn.domain.request.ResetPassword;
-//import com.ndc.laptopvn.service.OrderService;
-//import com.ndc.laptopvn.service.ProductService;
-//import com.ndc.laptopvn.service.UploadService;
-//import com.ndc.laptopvn.service.UserService;
-import com.TCL.example.domain.*;
 import com.TCL.example.domain.DTO.RegisterDTO;
-import com.TCL.example.service.*;
+import com.TCL.example.domain.Order;
+import com.TCL.example.domain.Product;
+import com.TCL.example.domain.User;
+import com.TCL.example.domain.request.ResetPassword;
+import com.TCL.example.service.OrderService;
+import com.TCL.example.service.ProductService;
+import com.TCL.example.service.UploadService;
+import com.TCL.example.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -161,12 +158,12 @@ public class HomePageController {
         return "client/auth/verifyOtp";
     }
 
-//    @GetMapping("/forgot-password/reset-password/{email}")
-//    public String resetPassword(Model model, @PathVariable String email) {
-//        User user = this.userService.getUserByEmail(email);
-//        model.addAttribute("email", email);
-//        model.addAttribute("user", user);
-//        model.addAttribute("resetPassword", new ResetPassword());
-//        return "client/auth/resetPassword";
-//    }
+   @GetMapping("/forgot-password/reset-password/{email}")
+   public String resetPassword(Model model, @PathVariable String email) {
+       User user = this.userService.getUserByEmail(email);
+       model.addAttribute("email", email);
+       model.addAttribute("user", user);
+       model.addAttribute("resetPassword", new ResetPassword());
+       return "client/auth/resetPassword";
+   }
 }

@@ -40,18 +40,17 @@
 
 <div class="container h-100" style="margin-top: 158px ">
     <div class="row h-100 justify-content-center align-items-center py-7">
-        <form:form class="col-lg-6 bg-primary rounded p-5">
-            <h2 class="text-center text-white mb-4">Xác thực Email</h2>
-            <div class="mb-3">
-                <label for="email" class="form-label text-white">Email: </label>
-                <input class="form-control" id="email" name="email"/>
-            </div>
-            <input type="hidden" name="${_csrf.parameterName}"
-                   value="${_csrf.token}"/>
-            <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-light submitEmail">Gửi Email</button>
-            </div>
-        </form:form>
+        <form id="emailForm" class="col-lg-6 bg-primary rounded p-5" onsubmit="return false;">
+    <h2 class="text-center text-white mb-4">Xác thực Email</h2>
+    <div class="mb-3">
+        <label for="email" class="form-label text-white">Email: </label>
+        <input class="form-control" id="email" name="email" />
+    </div>
+    <input type="hidden" id="csrfToken" name="${_csrf.parameterName}" value="${_csrf.token}" />
+    <div class="d-grid gap-2">
+        <button type="submit" class="btn btn-light submitEmail">Gửi Email</button>
+    </div>
+</form>
     </div>
 </div>
 
@@ -73,56 +72,79 @@
 <script src="/client/js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    $(document).ready(() => {
+$(document).ready(() => {
+    $('#emailForm .submitEmail').click((e) => {
+        e.preventDefault();
 
-        const submitBtn = $('.submitEmail');
+        const email = $('#email').val().trim();
+        const csrfToken = $('#csrfToken').val();
 
-        submitBtn.click((e) => {
-            e.preventDefault();
-            const email = $('#email').val();
-            const csrfToken = $('[name="${_csrf.parameterName}"]').val(); // Lấy CSRF token từ input hidden
-            console.log("email: " + email);
-            $.ajax({
-                url: `/forgot-password/verify-email/` + email,
-                type: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken // Gửi CSRF token trong header
-                },
-                success: function (data) {
-                    $.toast({
-                        text: "Gửi email xác thực thành công",
-                        showHideTransition: 'slide',
-                        bgColor: '#28a745',
-                        textColor: 'white',
-                        allowToastClose: true,
-                        hideAfter: 5000,
-                        stack: 5,
-                        textAlign: 'left',
-                        position: 'top-right',
-                        icon: 'success'
-                    });
-                    setTimeout(() => {
-                        window.location.href = `/forgot-password/verify-otp`;
-                    }, 5000);
-                },
-                error: function (error) {
-                    $.toast({
-                        text: "Gửi email xác thực thất bại",
-                        showHideTransition: 'slide',
-                        bgColor: '#dc3545',
-                        textColor: 'white',
-                        allowToastClose: true,
-                        hideAfter: 5000,
-                        stack: 5,
-                        textAlign: 'left',
-                        position: 'top-right',
-                        icon: 'error'
-                    });
-                }
+        if (!email) {
+            $.toast({
+                text: "Vui lòng nhập email",
+                bgColor: '#dc3545',
+                textColor: 'white',
+                position: 'top-right',
+                icon: 'error'
             });
-        });
-    });
+            return;
+        }
 
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(email)) {
+            $.toast({
+                text: "Email không hợp lệ",
+                bgColor: '#dc3545',
+                textColor: 'white',
+                position: 'top-right',
+                icon: 'error'
+            });
+            return;
+        }
+
+        const $button = $('#emailForm .submitEmail');
+        $button.prop('disabled', true);
+
+$.ajax({
+    url: '/forgot-password/verify-email',  // không có tham số trong URL nữa
+    type: 'POST',
+    contentType: 'application/json',
+    headers: {
+        'X-CSRF-TOKEN': csrfToken
+    },
+    data: JSON.stringify({ email }),  // gửi email trong body JSON
+    success: function () {
+        $.toast({
+            text: "Gửi email xác thực thành công",
+            bgColor: '#28a745',
+            textColor: 'white',
+            position: 'top-right',
+            icon: 'success'
+        });
+        setTimeout(() => {
+            window.location.href = '/forgot-password/verify-otp';
+        }, 5000);
+    },
+    error: function (xhr) {
+        let message = "Gửi email xác thực thất bại";
+        if (xhr.responseText) {
+            message = xhr.responseText;
+        }
+        $.toast({
+            text: message,
+            bgColor: '#dc3545',
+            textColor: 'white',
+            position: 'top-right',
+            icon: 'error'
+        });
+    },
+    complete: function () {
+        $button.prop('disabled', false);
+    }
+});
+
+    });
+});
 </script>
 
 </body>
