@@ -9,7 +9,7 @@
 <head>
     <meta charset="utf-8">
     <link rel="shortcut icon" type="image/png" href="/images/auth-bg/icon.png"/>
-    <title> ${product.name} - LaptopHaui</title>
+    <title> ${product.name} - LaptopTCL</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="" name="keywords">
     <meta content="" name="description">
@@ -57,7 +57,7 @@
                 <h2 class="text-primary">Chính sách bảo hành - Cam kết hỗ trợ khách hàng tối đa</h2>
             </div>
             <div class="policy-content">
-                <p>LaptopHaui rất tiếc và xin lỗi vì sự bất tiện của Quý khách khi sản phẩm không may phát sinh lỗi phải bảo hành. Hi vọng chi tiết chính sách đổi trả – bảo hành tại LaptopHaui cũng như thông tin liên hệ các bộ phận hỗ trợ dưới đây có thể giúp Quý khách yên tâm hơn trong quá trình sử dụng sản phẩm.</p>
+                <p>LaptopTCL rất tiếc và xin lỗi vì sự bất tiện của Quý khách khi sản phẩm không may phát sinh lỗi phải bảo hành. Hi vọng chi tiết chính sách đổi trả – bảo hành tại LaptopTCL cũng như thông tin liên hệ các bộ phận hỗ trợ dưới đây có thể giúp Quý khách yên tâm hơn trong quá trình sử dụng sản phẩm.</p>
                 <b>Hotline khiếu nại về sản phẩm dịch vụ: </b>
                 <p>18003298</p>
                 <b>Hotline tiếp nhận bảo hành: </b>

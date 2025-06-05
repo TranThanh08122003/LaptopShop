@@ -26,8 +26,6 @@
                 }
             });
 
-
-
             productFiles.change(function (e) {
                 $.each(e.target.files, function(index, file) {
                     const imgURL = URL.createObjectURL(file);

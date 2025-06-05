@@ -161,66 +161,107 @@
     //     button.parent().parent().find('input').val(newVal);
     // });
     $('.quantity button').on('click', function () {
-        let change = 0;
-        const quantityP = $('#quantityP').val();
         var button = $(this);
-        var oldValue = button.parent().parent().find('input').val();
+        var input = button.closest('.quantity').find('input');
+        var oldValue = parseInt(input.val(), 10) || 1;
+        var maxQuantity = parseInt(input.attr('data-max-quantity')) || 100;
+        var minQuantity = 1;
+        var newVal = oldValue;
         if (button.hasClass('btn-plus')) {
-            var newVal = parseFloat(oldValue) + 1;
-            change = 1;
-        } else {
-            if (oldValue > 1) {
-                var newVal = parseFloat(oldValue) - 1;
-                change = -1;
+                if (oldValue < maxQuantity) {
+                    newVal = oldValue + 1;
+                } else {
+                    alert(`Số lượng tối đa trong kho là ${maxQuantity}`);
+                }
             } else {
-                newVal = 1;
+                if (oldValue > minQuantity) {
+                    newVal = oldValue - 1;
+                } else {
+                    alert(`Số lượng tối thiểu là ${minQuantity}`);
+                }
             }
-        }
-        const input = button.parent().parent().find('input');
+
         input.val(newVal);
 
-        //set form index
-        const index = input.attr("data-cart-detail-index")
-        const el = document.getElementById(`cartDetails${index}.quantity`);
-        $(el).val(newVal);
+        // Cập nhật phần tử liên quan
+        var index = input.attr("data-cart-detail-index");
+        var el = document.getElementById(`cartDetails${index}.quantity`);
+        if(el) $(el).val(newVal);
 
+        // Cập nhật giá chi tiết
+        var price = parseFloat(input.attr("data-cart-detail-price")) || 0;
+        var id = input.attr("data-cart-detail-id");
+        var priceElement = $(`p[data-cart-detail-id='${id}']`);
 
-
-        //get price
-        const price = input.attr("data-cart-detail-price");
-        const id = input.attr("data-cart-detail-id");
-
-        const priceElement = $(`p[data-cart-detail-id='${id}']`);
-        if (priceElement) {
-            const newPrice = +price * newVal;
+        if (priceElement.length) {
+            var newPrice = price * newVal;
             priceElement.text(formatCurrency(newPrice.toFixed(2)) + " đ");
         }
 
-        //update total cart price
-        const totalPriceElement = $(`p[data-cart-total-price]`);
+        // Tính lại tổng giá dựa trên tất cả các input
+        var newTotal = 0;
+        $('input[data-cart-detail-price]').each(function () {
+            var qty = parseInt($(this).val(), 10) || 0;
+            var price = parseFloat($(this).attr('data-cart-detail-price')) || 0;
+            newTotal += qty * price;
+        });
 
-        if (totalPriceElement && totalPriceElement.length) {
-            const currentTotal = totalPriceElement.first().attr("data-cart-total-price");
-            let newTotal = +currentTotal;
-            if (change === 0) {
-                newTotal = +currentTotal;
-            } else {
-                newTotal = change * (+price) + (+currentTotal);
-            }
-
-            //reset change
-            change = 0;
-
-            //update
-            totalPriceElement?.each(function (index, element) {
-                //update text
-                $(totalPriceElement[index]).text(formatCurrency(newTotal.toFixed(2)) + " đ");
-
-                //update data-attribute
-                $(totalPriceElement[index]).attr("data-cart-total-price", newTotal);
-            });
-        }
+        var totalPriceElement = $(`p[data-cart-total-price]`);
+        totalPriceElement.each(function () {
+            $(this).text(formatCurrency(newTotal.toFixed(2)) + " đ");
+            $(this).attr("data-cart-total-price", newTotal);
+        });
     });
+    $('.quantity input').on('input change', function () {
+    var input = $(this);
+    var val = parseInt(input.val(), 10) || 0;
+
+    // Lấy max quantity từ data attribute
+    var maxQuantity = parseInt(input.attr('data-max-quantity')) || 1000;
+    var minQuantity = 0;
+
+    // Giới hạn số lượng nhập
+    if (val > maxQuantity) {
+        val = maxQuantity;
+        alert(`Số lượng tối đa trong kho là ${maxQuantity}`);
+    } else if (val < minQuantity) {
+        val = minQuantity;
+        alert(`Số lượng tối thiểu là ${minQuantity}`);
+    }
+
+    input.val(val);
+
+    // Cập nhật phần tử liên quan
+    var index = input.attr("data-cart-detail-index");
+    var el = document.getElementById(`cartDetails${index}.quantity`);
+    if (el) $(el).val(val);
+
+    // Cập nhật giá chi tiết
+    var price = parseFloat(input.attr("data-cart-detail-price")) || 0;
+    var id = input.attr("data-cart-detail-id");
+    var priceElement = $(`p[data-cart-detail-id='${id}']`);
+
+    if (priceElement.length) {
+        var newPrice = price * val;
+        priceElement.text(formatCurrency(newPrice.toFixed(2)) + " đ");
+    }
+
+    // Tính lại tổng giá dựa trên tất cả các input
+    var newTotal = 0;
+    $('input[data-cart-detail-price]').each(function () {
+        var qty = parseInt($(this).val(), 10) || 0;
+        var price = parseFloat($(this).attr('data-cart-detail-price')) || 0;
+        newTotal += qty * price;
+    });
+
+    var totalPriceElement = $(`p[data-cart-total-price]`);
+    totalPriceElement.each(function () {
+        $(this).text(formatCurrency(newTotal.toFixed(2)) + " đ");
+        $(this).attr("data-cart-total-price", newTotal);
+    });
+});
+
+
 
     function formatCurrency(value) {
         // Use the 'vi-VN' locale to format the number according to Vietnamese currency format

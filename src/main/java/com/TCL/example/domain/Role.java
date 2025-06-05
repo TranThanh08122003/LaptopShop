@@ -12,7 +12,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = "users")  // <<--- thêm dòng này
+@ToString(exclude = "users") 
 @Table(name = "roles")
 public class Role {
     @Id

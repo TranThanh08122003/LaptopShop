@@ -3,13 +3,15 @@ package com.TCL.example.domain;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "carts")
@@ -22,11 +24,21 @@ public class Cart {
     private int sum;
 
     // user_id
-    @OneToOne()
+    @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
 
     // cart_detail_id
     @OneToMany(mappedBy = "cart")
-    List<CartDetail> cartDetails;
+    private List<CartDetail> cartDetails;
+
+    @Override
+    public String toString() {
+        return "Cart{" +
+                "id=" + id +
+                ", sum=" + sum +
+                ", userId=" + (user != null ? user.getId() : "null") +
+                ", cartDetailsCount=" + (cartDetails != null ? cartDetails.size() : 0) +
+                '}';
+    }
 }

@@ -17,7 +17,7 @@
                         <a class="para-text me-sm-2" target="_blank" href="https://www.facebook.com/@laptopTCL.vn/?mibextid=JRoKGi">
                             <img class="ft-icon" src="/images/auth-bg/fb-icon.png"/>
                         </a>
-                        <a class="para-text me-sm-2" target="_blank" href="https://zalo.me/0868434862">
+                        <a class="para-text me-sm-2" target="_blank" href="https://zalo.me/0869536362">
                             <img class="ft-icon" style="margin-top:1px" src="/images/auth-bg/zl-icon.png"/>
                         </a>
                     </div>

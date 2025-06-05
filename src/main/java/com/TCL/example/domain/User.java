@@ -7,7 +7,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 import java.sql.Date;
@@ -15,10 +17,11 @@ import java.sql.Timestamp;
 import java.util.List;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = "role")  // <<--- thêm dòng này
+@ToString(exclude = {"cart", "orders", "forgotPassword", "role"})
 @Table(name = "users")
 public class User {
     @Id

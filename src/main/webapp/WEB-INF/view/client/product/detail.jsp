@@ -47,7 +47,7 @@
 </head>
 
 <body>
-
+<input type="hidden" id="productId" value="${product.id}" />
 <!-- Spinner Start -->
 <div id="spinner"
      class="show w-100 vh-100 bg-white position-fixed translate-middle top-50 start-50  d-flex align-items-center justify-content-center">
@@ -76,14 +76,14 @@
                     <div class="col-lg-6">
                         <div id="carouselId" class="carousel slide position-relative" data-bs-ride="carousel">
                             <div class="carousel-inner" role="listbox">
-                                <c:forEach var="ProductImage" items="${ProductImages}" varStatus="status">
-                                    <div class="carousel-item rounded ${status.index == 1 ? 'active' : ''}">
-                                        <!-- Your image and content here -->
+                               <c:forEach var="ProductImage" items="${ProductImages}" varStatus="status">
+                                    <div class="carousel-item rounded ${status.index == 0 ? 'active' : ''}">
                                         <img src="/images/product/${ProductImage.image}"
-                                             class="img-fluid w-100 h-100 rounded"
-                                             alt="Second slide">
+                                            class="img-fluid w-100 h-100 rounded"
+                                            alt="Product image ${status.index + 1}">
                                     </div>
                                 </c:forEach>
+
                             </div>
                             <button class="carousel-control-prev" type="button" data-bs-target="#carouselId"
                                     data-bs-slide="prev">
@@ -248,20 +248,14 @@
                                             </c:forEach>
                                         </div>
                                         <button class="btn btn-link reply-button" data-comment-id="${comment.id}">Reply</button>
-                                        <div class="reply-form" id="reply-form-${comment.id}" style="display: none;">
-                                            <form:form method="post">
-                                                <input type="hidden" id="parentCommentId" value="${comment.id}">
-                                                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
-                                                <div class="mb-3">
-                                                    <label for="replyMessage" class="form-label">Message</label>
-                                                    <textarea class="form-control" id="replyMessage" name="message" rows="3"></textarea>
-                                                </div>
-                                                <input type="hidden" name="email" value="${sessionScope.email}">
-                                                <input type="hidden" id="rateReply" name="rate" value="${comment.rate}">
-                                                <input type="hidden" name="userName" value="${sessionScope.fullName}">
-                                                <button type="submit" class="btn btn-primary submitReply">Submit</button>
-                                            </form:form>
+                                        <div id="reply-form-${comment.id}" class="reply-form" style="display: none;">
+                                            <input type="hidden" class="parentCommentId" value="${comment.id}" />
+                                            <input type="text" class="name" placeholder="Tên của bạn" />
+                                            <input type="email" class="email" placeholder="Email của bạn" />
+                                            <textarea class="replyMessage" placeholder="Phản hồi..."></textarea>
+                                            <button class="submitReply">Gửi</button>
                                         </div>
+
                                         <c:forEach var="reply" items="${comment.replies}">
                                             <div class="border-bottom rounded p-3 mb-3 ms-5">
                                                 <h5>${reply.userName}</h5>
@@ -412,10 +406,16 @@
 <!-- Template Javascript -->
 <script src="/client/js/main.js"></script>
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         const csrfToken = $('#csrf').val();
+        const productId = $('#productId').val(); // gán từ input hidden
+        console.log("productId:", productId); 
+        const sessionName = '${sessionScope.fullName}';
+        const sessionEmail = '${sessionScope.email}';
+
+        // Xử lý đánh giá sao
         $('.fa-star').click(function () {
-            var value = $(this).data('value');
+            const value = $(this).data('value');
             $('#rating').val(value);
             $('.fa-star').removeClass('text-muted');
             $('.fa-star').each(function () {
@@ -425,105 +425,72 @@
             });
         });
 
-
+        // Gửi đánh giá sản phẩm
         $('.submit-comment').click(function () {
-            let userName = '${sessionScope.fullName}';
-            let emailUser = '${sessionScope.email}';
-            var rating = $('#rating').val();
-            var name = userName ? userName : $('#name').val();
-            var email = emailUser ? emailUser : $('#email').val();
-            var content = $('#content').val();
-            console.log("Số sao đánh giá: " + rating);
-            console.log("Tên: " + name);
-            console.log("Email: " + email);
-            console.log("Nội dung: " + content);
-            console.log(csrfToken);
+            const rating = $('#rating').val();
+            const name = sessionName || $('#name').val();
+            const email = sessionEmail || $('#email').val();
+            const content = $('#content').val();
 
-            $.ajax({
-                url: `/api/products/` + ${id} +`/comments`,
-                type: 'POST',
-                contentType: 'application/json',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken  // Gửi CSRF token trong header
-                },
-                data: JSON.stringify({
-                    rate: rating,
-                    userName: name,
-                    email: email,
-                    message: content,
-                    parentCommentId: null
-                }),
-                success: function (response) {
-                    console.log(response);
-                    $.toast({
-                        text: 'Đánh giá thành công',
-                        showHideTransition: 'slide',
-                        bgColor: '#28a745',
-                        textColor: 'white',
-                        allowToastClose: true,
-                        hideAfter: 1000,
-                        stack: 5,
-                        textAlign: 'left',
-                        position: 'top-right',
-                        icon: 'success'
-                    });
-                    location.href = '/product/${id}';
-                },
-                error: function (response) {
-                    console.log(response.message);
-                    $.toast({
-                        text: 'Đánh giá thất bại',
-                        showHideTransition: 'slide',
-                        bgColor: '#dc3545',
-                        textColor: 'white',
-                        allowToastClose: true,
-                        hideAfter: 1000,
-                        stack: 5,
-                        textAlign: 'left',
-                        position: 'top-right',
-                        icon: 'error'
-                    });
+            sendComment(productId, {
+                rate: rating,
+                userName: name,
+                email: email,
+                message: content,
+                parentCommentId: null
+            }, function () {
+                if (productId) {
+                    location.href = `/product/`+ productId;
+                } else {
+                    console.error("Missing productId. Cannot redirect.");
                 }
             });
         });
 
-        document.querySelectorAll('.reply-button').forEach(button => {
-            button.addEventListener('click', () => {
-                const commentId = button.getAttribute('data-comment-id');
-                const replyForm = document.getElementById(`reply-form-` + commentId);
-                replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
-            });
+        // Mở form phản hồi
+        $('.reply-button').click(function () {
+            const commentId = $(this).data('comment-id');
+            $(`#reply-form-${commentId}`).toggle();
         });
 
+        // Gửi phản hồi bình luận
         $('.submitReply').click(function () {
-            let userName = '${sessionScope.fullName}';
-            let emailUser = '${sessionScope.email}';
-            let rating = $('#rateReply').val();
-            let name = userName ? userName : $('#name').val();
-            let email = emailUser ? emailUser : $('#email').val();
-            let content = $('#replyMessage').val();
-            let parentCommentId = $('#parentCommentId').val();
-            let id = ${product.id};
-            let id_c = ${comment.id};
+            const form = $(this).closest('.reply-form');
+            const parentCommentId = form.find('.parentCommentId').val();
+            const message = form.find('.replyMessage').val();
+            const name = sessionName || form.find('.name').val();
+            const email = sessionEmail || form.find('.email').val();
 
-            // Thay đổi ở đây: không cần reload trang sau khi gửi phản hồi
+            sendComment(productId,{
+                rate: null,
+                userName: name,
+                email: email,
+                message: message,
+                parentCommentId: parentCommentId
+            }, function () {
+                const html = `
+                    <div class="reply">
+                        <p><strong>${name}</strong></p>
+                        <p>${message}</p>
+                    </div>`;
+                $(`#reply-container-${parentCommentId}`).append(html);
+                form.find('.replyMessage').val('');
+                form.hide();
+            });
+        });
+
+        function sendComment(productId, data, onSuccess) {
+        const url = "/api/products/" + productId + "/comments";
+        console.log("Calling URL:", url);
             $.ajax({
-                url: `/api/products/${id}/comments`,
+                url: url,
                 type: 'POST',
                 contentType: 'application/json',
                 headers: {
-                    'X-CSRF-TOKEN': csrfToken  // Gửi CSRF token trong header
+                    'X-CSRF-TOKEN': csrfToken
                 },
-                data: JSON.stringify({
-                    rate: null,
-                    userName: name,
-                    email: email,
-                    message: content,
-                    parentCommentId: null
-
-                }),
+                data: JSON.stringify(data),
                 success: function (response) {
-                    console.log(response);
                     $.toast({
                         text: 'Đánh giá thành công',
                         showHideTransition: 'slide',
@@ -536,11 +503,9 @@
                         position: 'top-right',
                         icon: 'success'
                     });
-                    // Cập nhật giao diện mà không cần reload trang
-                    // Thêm mã để hiển thị phản hồi mới ở đây
+                    if (onSuccess) onSuccess();
                 },
-                error: function (response) {
-                    console.log(response.message);
+                error: function (xhr) {
                     $.toast({
                         text: 'Đánh giá thất bại',
                         showHideTransition: 'slide',
@@ -553,13 +518,14 @@
                         position: 'top-right',
                         icon: 'error'
                     });
+                    console.error("Error response:", xhr.responseText);
                 }
             });
-        });
-
+        }
 
     });
 </script>
+
 </body>
 
 </html>

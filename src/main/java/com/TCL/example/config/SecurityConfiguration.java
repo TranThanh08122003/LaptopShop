@@ -64,9 +64,10 @@ public class SecurityConfiguration {
 SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
         .cors(Customizer.withDefaults())
-        .csrf(csrf -> csrf.disable()
-            //  .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()) 
-        )
+.csrf(csrf -> csrf
+    .ignoringRequestMatchers("/forgot-password/**", "/api/**")
+    .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+)
         .authorizeHttpRequests(authorize -> authorize
             .dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.INCLUDE).permitAll()
             .requestMatchers(HttpMethod.GET, "/", "/login", "/client/**", "/css/**", "/js/**", "/product/**",
@@ -80,8 +81,8 @@ SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
             .requestMatchers("/admin/user/**").hasRole("ADMIN")
             .anyRequest().authenticated()
         )
-        .httpBasic(httpBasic -> httpBasic.disable())
-            .sessionManagement((sessionManagement) -> sessionManagement
+        .httpBasic(Customizer.withDefaults())
+        .sessionManagement(session -> session
             .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
             .invalidSessionUrl("/logout?expired")
             .maximumSessions(1)
