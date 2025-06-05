@@ -44,7 +44,7 @@
         <div class="card-body">
             <p class="card-text w-75 mx-auto">
                 Chân thành cảm ơn quý khách vì đã tin tưởng và chọn mua sản
-                phẩm tại LaptopHaui. Điều này là một động lực lớn đối với chúng tôi để tiếp tục cung cấp
+                phẩm tại LaptopTCL. Điều này là một động lực lớn đối với chúng tôi để tiếp tục cung cấp
                 những sản phẩm chất lượng và dịch vụ tốt nhất đến quý khách hàng.
             </p>
             <img src="/client/img/thankyou.png" alt="thank you very much" class="w-25">

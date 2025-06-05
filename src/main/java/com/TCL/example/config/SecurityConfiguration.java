@@ -19,6 +19,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 
 @Configuration
@@ -59,43 +60,50 @@ public class SecurityConfiguration {
     }
 
 
-    @Bean
-    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .cors(Customizer.withDefaults())
-                .authorizeHttpRequests(authorize -> authorize
-                        .dispatcherTypeMatchers(DispatcherType.FORWARD,
-                                DispatcherType.INCLUDE) .permitAll()
-                        .requestMatchers(HttpMethod.GET,"/","/login", "/client/**", "/css/**", "/js/**","/product/**",
-                                "/images/**","/register","/api/**", "/products/**", "/forgot-password/**", "/reports/**").permitAll()
-                        .requestMatchers(HttpMethod.POST,"/register", "/forgot-password/**",
-                                "/api/auth/login", "/api/add-product-to-cart",
-                                "/api/products/**").permitAll()
-                          .requestMatchers("/admin/**").hasRole("MANAGER")
-//                        .requestMatchers("/admin").hasAnyRole("ADMIN","MANAGER","SELLER")
-//                        .requestMatchers("/admin/product/**").hasRole("MANAGER")
-//                        .requestMatchers("/admin/order/**").hasAnyRole("SELLER", "MANAGER")
-//                        .requestMatchers("/admin/user/**").hasRole("ADMIN")
-                        .anyRequest().authenticated())
-                .httpBasic(Customizer.withDefaults())
-                .sessionManagement((sessionManagement) -> sessionManagement
-                        .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
-                        .invalidSessionUrl("/logout?expired")
-                        .maximumSessions(1)
-                        .maxSessionsPreventsLogin(false))
-                .logout(logout->logout.deleteCookies("JSESSIONID").invalidateHttpSession(true))
-                .formLogin(formLogin -> formLogin
-                        .loginPage("/login")
-                        .failureUrl("/login?error")
-                        .successHandler(customSuccessHandler())
-                        .permitAll())
-                .exceptionHandling(ex -> ex
-                        .accessDeniedPage("/access-denied"))
-                ;
+   @Bean
+SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http
+        .cors(Customizer.withDefaults())
+.csrf(csrf -> csrf
+    .ignoringRequestMatchers("/forgot-password/**", "/api/**")
+    .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+)
+        .authorizeHttpRequests(authorize -> authorize
+            .dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.INCLUDE).permitAll()
+            .requestMatchers(HttpMethod.GET, "/", "/login", "/client/**", "/css/**", "/js/**", "/product/**",
+                    "/images/**", "/register", "/api/**", "/products/**", "/forgot-password/**", "/reports/**").permitAll()
+            .requestMatchers(HttpMethod.POST, "/register", "/forgot-password/**",
+                    "/api/auth/login", "/api/add-product-to-cart", "/api/products/**").permitAll()
+            .requestMatchers("/admin/**").hasRole("MANAGER")
+            .requestMatchers("/admin").hasAnyRole("ADMIN","MANAGER","SELLER")
+            .requestMatchers("/admin/product/**").hasRole("MANAGER")
+            .requestMatchers("/admin/order/**").hasAnyRole("SELLER", "MANAGER")
+            .requestMatchers("/admin/user/**").hasRole("ADMIN")
+            .anyRequest().authenticated()
+        )
+        .httpBasic(Customizer.withDefaults())
+        .sessionManagement(session -> session
+            .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
+            .invalidSessionUrl("/logout?expired")
+            .maximumSessions(1)
+            .maxSessionsPreventsLogin(false)
+        )
+        .logout(logout -> logout
+            .deleteCookies("JSESSIONID")
+            .invalidateHttpSession(true)
+        )
+        .formLogin(formLogin -> formLogin
+            .loginPage("/login")
+            .failureUrl("/login?error")
+            .successHandler(customSuccessHandler())
+            .permitAll()
+        )
+        .exceptionHandling(ex -> ex
+            .accessDeniedPage("/access-denied")
+        );
 
+    return http.build();
+}
 
-
-        return http.build();
-    }
 
 }

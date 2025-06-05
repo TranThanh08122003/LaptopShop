@@ -82,7 +82,7 @@
         const password = $('#password');
         const confirmPassword = $('#confirmPassword');
         const submitBtn = $('.submitOtp');
-        const csrfToken = $('[name="${_csrf.parameterName}"]').val();
+        const csrfToken = $('[name="_csrf"]').val();
         submitBtn.click((e) => {
             e.preventDefault();  // Ngăn chặn form submit mặc định
             if (password.val() !== confirmPassword.val()) {
