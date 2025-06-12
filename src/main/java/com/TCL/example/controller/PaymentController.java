@@ -104,7 +104,7 @@ public class PaymentController {
         User currentUser = new User();// null
         long id = (long) session.getAttribute("id");
         currentUser.setId(id);
-        this.productService.handlePlaceOrder(currentUser, session, receiverName, receiverAddress, receiverPhone);
+        this.productService.handlePlaceOrder(currentUser, session, receiverName, receiverAddress, receiverPhone, paymentUrl);
         return ResponseEntity.status(HttpStatus.OK).body(paymentResDTO);
     }
 

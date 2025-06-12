@@ -97,6 +97,9 @@ public class ItemController {
         model.addAttribute("cartDetails", cartDetails);
         model.addAttribute("totalPrice", totalPrice);
         model.addAttribute("cart", cart);
+            if(session != null) {
+        session.setAttribute("totalPrice", totalPrice);
+    }
         return "client/cart/show";
     }
 
@@ -108,27 +111,34 @@ public class ItemController {
         return "redirect:/cart";
     }
 
-    @GetMapping("/checkout")
-    public String getCheckOutPage(Model model, HttpServletRequest request) {
-        User currentUser = new User();// null
-        HttpSession session = request.getSession(false);
-        long id = (long) session.getAttribute("id");
-        currentUser.setId(id);
+@GetMapping("/checkout")
+public String getCheckOutPage(Model model, HttpServletRequest request) {
+    HttpSession session = request.getSession(false);
+    User currentUser = new User();
+    long id = (long) session.getAttribute("id");
+    currentUser.setId(id);
 
-        Cart cart = this.productService.fetchCartByUser(currentUser);
+    Cart cart = this.productService.fetchCartByUser(currentUser);
+    List<CartDetail> cartDetails = cart == null ? new ArrayList<>() : cart.getCartDetails();
 
-        List<CartDetail> cartDetails = cart == null ? new ArrayList<CartDetail>() : cart.getCartDetails();
-
-        double totalPrice = 0;
-        for (CartDetail cd : cartDetails) {
-            totalPrice += cd.getPrice() * cd.getQuantity();
-        }
-
-        model.addAttribute("cartDetails", cartDetails);
-        model.addAttribute("totalPrice", totalPrice);
-
-        return "client/cart/checkout";
+    double totalPrice = 0;
+    for (CartDetail cd : cartDetails) {
+        totalPrice += cd.getPrice() * cd.getQuantity();
     }
+
+    // Nếu có giá đã giảm trong session thì dùng
+    Double finalPrice = (Double) session.getAttribute("finalPrice");
+    if (finalPrice == null) {
+        finalPrice = totalPrice;
+    }
+
+    model.addAttribute("cartDetails", cartDetails);
+    model.addAttribute("totalPrice", finalPrice); // ⚠ dùng finalPrice thay vì totalPrice gốc
+    model.addAttribute("cart", cart);
+
+    return "client/cart/checkout";
+}
+
 
     @PostMapping("/confirm-checkout")
     public String getCheckOutPage(@ModelAttribute("cart") Cart cart) {
@@ -137,19 +147,24 @@ public class ItemController {
         return "redirect:/checkout";
     }
 
-    @PostMapping("/place-order")
-    public String handlePlaceOrder(
-            HttpServletRequest request,
-            @RequestParam("receiverName") String receiverName,
-            @RequestParam("receiverAddress") String receiverAddress,
-            @RequestParam("receiverPhone") String receiverPhone){
-        HttpSession session = request.getSession(false);
-        User currentUser = new User();// null
-        long id = (long) session.getAttribute("id");
-        currentUser.setId(id);
-        this.productService.handlePlaceOrder(currentUser, session, receiverName, receiverAddress, receiverPhone);
-        return "redirect:/thanks";
-    }
+@PostMapping("/place-order")
+public String handlePlaceOrder(
+        HttpServletRequest request,
+        @RequestParam("receiverName") String receiverName,
+        @RequestParam("receiverAddress") String receiverAddress,
+        @RequestParam("receiverPhone") String receiverPhone,
+        @RequestParam(value = "couponCode", required = false) String couponCode) {
+
+    HttpSession session = request.getSession(false);
+    User currentUser = new User();
+    long id = (long) session.getAttribute("id");
+    currentUser.setId(id);
+
+    this.productService.handlePlaceOrder(currentUser, session, receiverName, receiverAddress, receiverPhone, couponCode);
+
+    return "redirect:/thanks"; 
+}
+
 
     @GetMapping("/thanks")
     public String getThanksPage() {

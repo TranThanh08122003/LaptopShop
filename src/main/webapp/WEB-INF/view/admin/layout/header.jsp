@@ -1,6 +1,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
+
 <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
     <!-- Navbar Brand-->
     <a class="navbar-brand ps-3" href="/admin">Laptop TCL</a>
@@ -23,10 +24,9 @@
                 <li><a class="dropdown-item" href="#!">Cài đặt</a></li>
                 <li><hr class="dropdown-divider" /></li>
                 <li>
-                    <form method="post" action="/logout">
-                        <input type="hidden" name="${_csrf.parameterName}"
-                               value="${_csrf.token}"/>
-                        <button class="dropdown-item" href="#">Đăng xuất</button>
+                    <form method="post" action="${pageContext.request.contextPath}/logout" style="margin: 0;">
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                        <button type="submit" class="dropdown-item">Đăng xuất</button>
                     </form>
                 </li>
             </ul>

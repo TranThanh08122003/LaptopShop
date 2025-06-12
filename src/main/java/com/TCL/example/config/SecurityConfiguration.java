@@ -20,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 
 @Configuration
@@ -73,7 +74,7 @@ SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
             .requestMatchers(HttpMethod.GET, "/", "/login", "/client/**", "/css/**", "/js/**", "/product/**",
                     "/images/**", "/register", "/api/**", "/products/**", "/forgot-password/**", "/reports/**").permitAll()
             .requestMatchers(HttpMethod.POST, "/register", "/forgot-password/**",
-                    "/api/auth/login", "/api/add-product-to-cart", "/api/products/**").permitAll()
+                    "/api/auth/login", "/api/add-product-to-cart", "/api/products/**","/admin/coupon/**").permitAll()
             .requestMatchers("/admin/**").hasRole("MANAGER")
             .requestMatchers("/admin").hasAnyRole("ADMIN","MANAGER","SELLER")
             .requestMatchers("/admin/product/**").hasRole("MANAGER")
@@ -89,6 +90,9 @@ SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
             .maxSessionsPreventsLogin(false)
         )
         .logout(logout -> logout
+        .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
+            .logoutUrl("/logout") 
+            .logoutSuccessUrl("/login?logout")
             .deleteCookies("JSESSIONID")
             .invalidateHttpSession(true)
         )

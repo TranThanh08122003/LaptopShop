@@ -27,7 +27,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings("unused")
 @Controller
 @RequiredArgsConstructor
 public class HomePageController {
@@ -123,7 +122,6 @@ public class HomePageController {
     @GetMapping("/info-setting")
     public String getInfoSettingPage(Model model, HttpServletRequest request) {
         HttpSession session = request.getSession(false);
-        @SuppressWarnings("unused")
         User currentUser = new User();
         long id = (long) session.getAttribute("id");
         User user = this.userService.getUserById(id);

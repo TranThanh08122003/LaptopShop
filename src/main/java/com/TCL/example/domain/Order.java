@@ -35,6 +35,11 @@ public class Order {
     @JoinColumn(name = "user_id")
     private User user;
 
+    // coupon id
+    @ManyToOne
+    @JoinColumn(name = "coupon_id")
+    private Coupon coupon;
+
     @OneToMany(mappedBy = "order")
     private List<OrderDetail> orderDetails;
 
@@ -42,5 +47,4 @@ public class Order {
     public String toString() {
         return "Order [id=" + id + ", totalPrice=" + totalPrice + "]";
     }
-
 }

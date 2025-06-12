@@ -9,6 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.TCL.example.service.UserService;
 
 import java.sql.Timestamp;
@@ -27,19 +29,23 @@ public class ProductService {
 
     private final OrderDetailRepository orderDetailRepository;
 
-    public ProductService(ProductRepository productRepository,
-                          CartRepository cartRepository,
-                          CartDetailRepository cartDetailRepository,
-                          UserService userservice, UserService userService,
-                          OrderRepository orderRepository,
-                          OrderDetailRepository orderDetailRepository) {
-        this.productRepository = productRepository;
-        this.cartRepository = cartRepository;
-        this.cartDetailRepository = cartDetailRepository;
-        this.userService = userService;
-        this.orderRepository = orderRepository;
-        this.orderDetailRepository = orderDetailRepository;
-    }
+private final CouponRepository couponRepository;
+
+public ProductService(ProductRepository productRepository,
+                      CartRepository cartRepository,
+                      CartDetailRepository cartDetailRepository,
+                      UserService userService,
+                      OrderRepository orderRepository,
+                      OrderDetailRepository orderDetailRepository,
+                      CouponRepository couponRepository) { 
+    this.productRepository = productRepository;
+    this.cartRepository = cartRepository;
+    this.cartDetailRepository = cartDetailRepository;
+    this.userService = userService;
+    this.orderRepository = orderRepository;
+    this.orderDetailRepository = orderDetailRepository;
+    this.couponRepository = couponRepository;
+}
 
     public Product handleSaveProduct(Product product){
         Product savedProduct = this.productRepository.save(product);
@@ -210,59 +216,82 @@ public class ProductService {
             }
         }
     }
+@Transactional
+public void handlePlaceOrder(User user, HttpSession session,
+                             String receiverName, String receiverAddress, String receiverPhone,
+                             String couponCode) {
 
-    public void handlePlaceOrder(User user, HttpSession session,
-                                 String receiverName, String receiverAddress, String receiverPhone){
+    Cart cart = this.cartRepository.findByUser(user);
+    if (cart != null) {
+        List<CartDetail> cartDetails = cart.getCartDetails();
+        if (cartDetails != null) {
 
-        // step1: get cart by user
-        Cart cart = this.cartRepository.findByUser(user);
-        if (cart != null){
-            List<CartDetail> cartDetails = cart.getCartDetails();
-            if (cartDetails != null){
+            Order order = new Order();
+            order.setUser(user);
+            order.setReceiverName(receiverName);
+            order.setReceiverAddress(receiverAddress);
+            order.setReceiverPhone(receiverPhone);
+            order.setStatus("PENDING");
+            order.setCreateAt(new Timestamp(System.currentTimeMillis()));
 
-                // create order
-                Order order = new Order();
-                order.setUser(user);
-                order.setReceiverName(receiverName);
-                order.setReceiverAddress(receiverAddress);
-                order.setReceiverPhone(receiverPhone);
-                order.setStatus("PENDING");
-                order.setCreateAt(new Timestamp(System.currentTimeMillis()));
+            Double finalPrice = (Double) session.getAttribute("finalPrice");
 
+            if (finalPrice == null) {
                 double totalPrice = 0;
-                for(CartDetail cartDetail : cartDetails){
+                for (CartDetail cartDetail : cartDetails) {
                     totalPrice += cartDetail.getPrice() * cartDetail.getQuantity();
                 }
-                order.setTotalPrice(totalPrice);
-                order = this.orderRepository.save(order);
-                // create order detail
-                for (CartDetail cartDetail : cartDetails){
-                    OrderDetail orderDetail = new OrderDetail();
-                    orderDetail.setOrder(order);
-                    orderDetail.setProduct(cartDetail.getProduct());
-                    orderDetail.setPrice(cartDetail.getPrice());
-                    orderDetail.setQuantity(cartDetail.getQuantity());
-                    this.orderDetailRepository.save(orderDetail);
-
-                    Product product = cartDetail.getProduct();
-                    product.setQuantity(product.getQuantity() - cartDetail.getQuantity());
-                    this.productRepository.save(product);
-                }
-
-                //step 2: delete cart_detail and cart
-                for (CartDetail cartDetail : cartDetails){
-                    this.cartDetailRepository.deleteById(cartDetail.getId());
-                }
-
-                this.cartRepository.deleteById(cart.getId());
-
-                //step 3: update session sum
-
-                session.setAttribute("sum", 0);
+                finalPrice = totalPrice;
             }
-        }
 
+            order.setTotalPrice(finalPrice);
+
+            // Xử lý giảm số lượng coupon nếu có
+            if (couponCode != null && !couponCode.isEmpty()) {
+                Coupon coupon = couponRepository.findByCode(couponCode);
+                if (coupon != null && coupon.getQuantity() > 0) {
+                    System.out.println("Số lượng coupon trước: " + coupon.getQuantity());
+                    coupon.setQuantity(coupon.getQuantity() - 1);
+                    coupon = couponRepository.save(coupon);
+                    couponRepository.flush();
+                    System.out.println("Số lượng coupon sau: " + coupon.getQuantity());
+
+                    order.setCoupon(coupon); // bây giờ coupon đã được quản lý
+                }
+            }
+
+
+            order = this.orderRepository.save(order);
+
+
+            for (CartDetail cartDetail : cartDetails) {
+                OrderDetail orderDetail = new OrderDetail();
+                orderDetail.setOrder(order);
+                orderDetail.setProduct(cartDetail.getProduct());
+                orderDetail.setPrice(cartDetail.getPrice());
+                orderDetail.setQuantity(cartDetail.getQuantity());
+                this.orderDetailRepository.save(orderDetail);
+
+                Product product = cartDetail.getProduct();
+                product.setQuantity(product.getQuantity() - cartDetail.getQuantity());
+                this.productRepository.save(product);
+            }
+
+            for (CartDetail cartDetail : cartDetails) {
+                this.cartDetailRepository.deleteById(cartDetail.getId());
+            }
+
+            this.cartRepository.deleteById(cart.getId());
+
+            session.setAttribute("sum", 0);
+            session.removeAttribute("finalPrice");
+            session.removeAttribute("appliedCouponCode"); // nếu có
+        }
     }
+}
+
+
+
 
     public List<Product> searchProduct(String keyword) {
         return productRepository.findByNameContaining(keyword);

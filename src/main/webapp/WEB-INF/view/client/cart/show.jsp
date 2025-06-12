@@ -151,6 +151,18 @@
                                     <div class="col-12 col-md-8">
                                         <div class="bg-light rounded">
                                             <div class="p-4">
+                                            <form id="couponForm">
+                                                <div class="mb-3">
+                                                    <label for="couponCode" class="form-label">Mã giảm giá</label>
+                                                    <div class="input-group">
+                                                        <input type="text" id="couponCode" name="couponCode" class="form-control" placeholder="Nhập mã...">
+                                                        <button type="submit" class="btn btn-primary">Áp dụng</button>
+                                                    </div>
+                                                </div>
+                                                <div id="couponMessage" class="text-danger fw-bold"></div>
+                                            </form>
+                                        </div>
+                                            <div class="p-4">
                                                 <h1 class="display-6 mb-4">Thông Tin Đơn Hàng</h1>
                                                 <div class="d-flex justify-content-between mb-4">
                                                     <h5 class="mb-0 me-4">Tạm tính:</h5>
@@ -164,14 +176,20 @@
                                                         <p class="mb-0">0 đ</p>
                                                     </div>
                                                 </div>
+                                                <div class="d-flex justify-content-between" id="discountRow" style="display: none;">
+                                                    <h5 class="mb-0 me-4">Giảm giá:</h5>
+                                                    <p class="mb-0 text-success" id="discountAmount">- 0 đ</p>
+                                                </div>
                                             </div>
-                                            <div
-                                                class="py-4 mb-4 border-top border-bottom d-flex justify-content-between">
-                                                <h5 class="mb-0 ps-4 me-4">Tổng số tiền</h5>
-                                                <p class="mb-0 pe-4" data-cart-total-price="${totalPrice}">
-                                                    <fmt:formatNumber type="number" value="${totalPrice}" /> đ
-                                                </p>
-                                            </div>
+
+
+                                        <div class="d-flex justify-content-between border-top pt-3">
+                                            <h5 class="mb-0 ps-4 me-4">Tổng cộng:</h5>
+                                            <p class="mb-0 pe-4 fw-bold text-primary" id="finalTotal">
+                                                <fmt:formatNumber type="number" value="${totalPrice}" /> đ
+                                            </p>
+                                        </div>
+
                                             <form:form action="/confirm-checkout" method="post" modelAttribute="cart">
                                                 <input type="hidden" name="${_csrf.parameterName}"
                                                     value="${_csrf.token}" />
@@ -194,6 +212,8 @@
                                                         </div>
                                                     </c:forEach>
                                                 </div>
+
+
                                                 <button
                                                     class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase mb-4 ms-4">Xác
                                                     nhận thanh toán
@@ -226,6 +246,39 @@
 
                     <!-- Template Javascript -->
                     <script src="/client/js/main.js"></script>
+<script>
+    $(document).ready(function () {
+        const total = parseFloat("${totalPrice}");
+
+        $('#couponForm').submit(function (e) {
+            e.preventDefault();
+            const code = $('#couponCode').val();
+
+            $.ajax({
+                url: '/api/apply-coupon',
+                type: 'POST',
+                data: { couponCode: code },
+                success: function (response) {
+                    if (response.success) {
+                        const discount = response.discount;
+                        const final = total - discount;
+
+                        $('#discountAmount').text("- " + discount.toLocaleString() + " đ");
+                        $('#discountRow').show();
+                        $('#finalTotal').text(final.toLocaleString() + " đ");
+                        $('#couponMessage').text("Áp dụng mã thành công!").removeClass("text-danger").addClass("text-success");
+                    } else {
+                        $('#couponMessage').text(response.message).removeClass("text-success").addClass("text-danger");
+                        $('#discountRow').hide();
+                        $('#finalTotal').text(total.toLocaleString() + " đ");
+                    }
+                }
+            });
+        });
+    });
+</script>
+
+
                 </body>
 
                 </html>

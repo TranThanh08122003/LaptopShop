@@ -133,6 +133,13 @@
                                     <img style="max-height: 250px; display:none;" alt="avatar preview"
                                          id="procuctPreview">
                                 </div>
+                                <div class="col-md-6 col-12 mb-3">
+                                    <label class="form-label">Danh mục:</label>
+                                    <form:select class="form-select" path="category.id">
+                                        <form:option value="" label="-- Chọn danh mục --"/>
+                                        <form:options items="${categories}" itemValue="id" itemLabel="name"/>
+                                    </form:select>
+                                </div>
 
                                 <div class="col-12 mb-5">
                                     <button type="submit" class="btn btn-primary">Thêm sản phẩm</button>
