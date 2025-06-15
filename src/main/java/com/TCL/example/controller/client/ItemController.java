@@ -181,49 +181,45 @@ public String handlePlaceOrder(
         return "redirect:/product/" + id;
     }
 
-    @GetMapping("/products")
-    public String getProductPage(Model model,
-                                 ProductCriteriaDTO productCriteriaDTO,
-                                 HttpServletRequest request) {
-        int page = 1;
-        try {
-            if (productCriteriaDTO.getPage().isPresent()) {
-                // convert from String to int
-                page = Integer.parseInt(productCriteriaDTO.getPage().get());
-            } else {
-                // page = 1
-            }
-        } catch (Exception e) {
-            // page = 1
-            // TODO: handle exception
+@GetMapping("/products")
+public String getProductPage(Model model,
+                             ProductCriteriaDTO productCriteriaDTO,
+                             HttpServletRequest request) {
+    int page = 1;
+    try {
+        if (productCriteriaDTO.getPage().isPresent()) {
+            page = Integer.parseInt(productCriteriaDTO.getPage().get());
         }
-
-        //check sort price
-        Pageable pageable = PageRequest.of(page - 1, 6);
-        if(productCriteriaDTO.getSort() != null &&productCriteriaDTO.getSort().isPresent()) {
-            String sort = productCriteriaDTO.getSort().get();
-            if(sort.equals("gia-tang-dan")){
-                pageable = PageRequest.of(page - 1, 6, Sort.by(Product_.PRICE).ascending());
-            }else if(sort.equals("gia-giam-dan")){
-                pageable = PageRequest.of(page - 1, 6, Sort.by(Product_.PRICE).descending());
-            }else {
-                pageable = PageRequest.of(page - 1, 6);
-            }
-        }
-
-        Page<Product> prs = this.productService.fetchProductsWithSpec(pageable, productCriteriaDTO);
-        List<Product> products = prs.getContent().size() >0 ? prs.getContent() : new ArrayList<Product>();
-
-        String qs = request.getQueryString();
-        if(qs != null && !qs.isBlank()){
-            qs = qs.replaceAll("page=" + page, "");
-        }
-
-        model.addAttribute("products", products);
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", prs.getTotalPages());
-        model.addAttribute("queryString", qs);
-        return "client/product/show";
+    } catch (Exception e) {
+        // ignore
     }
+
+    Pageable pageable = PageRequest.of(page - 1, 6);
+    if (productCriteriaDTO.getSort() != null && productCriteriaDTO.getSort().isPresent()) {
+        String sort = productCriteriaDTO.getSort().get();
+        if (sort.equals("gia-tang-dan")) {
+            pageable = PageRequest.of(page - 1, 6, Sort.by(Product_.PRICE).ascending());
+        } else if (sort.equals("gia-giam-dan")) {
+            pageable = PageRequest.of(page - 1, 6, Sort.by(Product_.PRICE).descending());
+        }
+    }
+
+    // ⚠️ Lọc theo danh mục nếu có
+    Page<Product> prs = productService.fetchProductsWithSpec(pageable, productCriteriaDTO);
+    List<Product> products = prs.getContent();
+
+    String qs = request.getQueryString();
+    if (qs != null && !qs.isBlank()) {
+        qs = qs.replaceAll("page=" + page, "");
+    }
+    model.addAttribute("categories", productService.getAllCategories());
+    model.addAttribute("products", products);
+    model.addAttribute("currentPage", page);
+    model.addAttribute("totalPages", prs.getTotalPages());
+    model.addAttribute("queryString", qs);
+
+    return "client/product/show";
+}
+
 }
 

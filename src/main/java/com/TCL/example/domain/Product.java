@@ -14,12 +14,12 @@ import lombok.Setter;
 
 import java.util.List;
 
+@Entity
+@Table(name = "products")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "products")
-@Entity
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,6 +30,7 @@ public class Product {
 
     @DecimalMin(value = "0.0", inclusive = false , message = "Giá sản phẩm phải lớn hơn 0")
     private double price;
+
     @OneToMany(mappedBy = "product")
     private List<ProductImage> ProductImages;
 
@@ -37,10 +38,13 @@ public class Product {
     @NotEmpty(message = "Mô tả sản phẩm không được để trống")
     @Column(columnDefinition = "MediumText")
     private String detailDesc;
+
     @NotEmpty(message = "Mô tả ngắn sản phẩm không được để trống")
     private String shortDesc;
+
     @Min(value = 1, message = "Số lượng sản phẩm phải lớn hơn hoặc bằng 1")
     private long quantity;
+
     private long sold;
     private String factory;
     private String target;
@@ -53,9 +57,12 @@ public class Product {
     private String graphic_card;
     private String weight;
 
-
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "product")
     @JsonIgnore
     private List<Comment> comments;
 
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    @NotNull(message = "Danh mục không được để trống")
+    private Category category;
 }

@@ -1,7 +1,8 @@
 package com.TCL.example.controller.admin;
 
-
+import com.TCL.example.service.CategoryService;
 import com.TCL.example.domain.Product;
+import com.TCL.example.domain.Category;
 import com.TCL.example.domain.ProductImage;
 import com.TCL.example.service.ProductImageService;
 import com.TCL.example.service.ProductService;
@@ -17,6 +18,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,48 +29,45 @@ public class ProductController {
 
     private final ProductService productService;
     private  final UploadService uploadService;
-
+    private final CategoryService categoryService; 
     private final ProductImageService productImageService;
 
     public ProductController(ProductService productService,
                              UploadService uploadService,
-                             ProductImageService productImageService) {
+                             ProductImageService productImageService,
+                             CategoryService categoryService) {
         this.productService = productService;
         this.uploadService = uploadService;
         this.productImageService = productImageService;
+        this.categoryService = categoryService;
     }
 
     @GetMapping("/admin/product")
     public String getProductPage(Model model,
-                                 @RequestParam("page") Optional<String> pageOptional,
-                                 @RequestParam(name = "name", required = false) String name,
-                                 @RequestParam(name = "factory", required = false) String factory) {
-        int page = 1;
-        try{
-            if(pageOptional.isPresent()){
-                page = Integer.parseInt(pageOptional.get());
-            }else{
-
-            }
-
-        } catch (NumberFormatException e) {
-
-        }
-
+                                    @RequestParam(required = false) String name,
+                                    @RequestParam(required = false) String factory,
+                                    @RequestParam(required = false) Long categoryId,
+                                    @RequestParam(defaultValue = "1") int page
+                                     ) {
         Pageable pageable = PageRequest.of(page-1, 10);
-        Page<Product> products = this.productService.getAllProducts(name, factory, pageable);
-        List<Product> productList = products.getContent();
-        model.addAttribute("products", productList);
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", products.getTotalPages());
-        model.addAttribute("name", name);
-        model.addAttribute("factoryName", factory);
-        return "admin/product/show";
+         Page<Product> products = productService.getAllProducts(name, factory, categoryId, pageable);
+    List<Category> categories = productService.getAllCategories();
+
+    model.addAttribute("products", products.getContent());
+    model.addAttribute("totalPages", products.getTotalPages());
+    model.addAttribute("currentPage", page);
+    model.addAttribute("name", name);
+    model.addAttribute("factory", factory);
+    model.addAttribute("categoryId", categoryId);
+    model.addAttribute("categories", categories);
+
+    return "admin/product/show";
     }
 
     @GetMapping("/admin/product/create")
     public String getCreateProductPage(Model model) {
         model.addAttribute("newProduct", new Product());
+        model.addAttribute("categories", categoryService.findAll());
         return "admin/product/create";
     }
 
@@ -76,7 +75,8 @@ public class ProductController {
     public String createProduct(Model model,
                                 @ModelAttribute("newProduct") @Valid Product product,
                                 BindingResult newProductBindingResult,
-                                @RequestParam("uploadProductFile") MultipartFile[] files){
+                                @RequestParam("uploadProductFile") MultipartFile[] files,
+                                RedirectAttributes redirectAttributes) {
 
         List<FieldError> errors = newProductBindingResult.getFieldErrors();
         for (FieldError error : errors ) {
@@ -99,7 +99,7 @@ public class ProductController {
         product.setProductImages(productImageList);
         this.productService.handleSaveProduct(product);
         this.productImageService.handleSaveProductImage(productImageList);
-
+        redirectAttributes.addFlashAttribute("successMessage", "Thêm sản phẩm thành công!");
         return "redirect:/admin/product";
     }
 
@@ -112,20 +112,30 @@ public class ProductController {
         return "admin/product/detail";
     }
 
-    @GetMapping("/admin/product/update/{id}")
-    public String getUpdateProductPage(Model model, @PathVariable long id) {
-        Optional<Product> currentProduct = this.productService.fetchProductById(id);
-        model.addAttribute("newProduct", currentProduct.get());
-        model.addAttribute("id", id);
-        model.addAttribute("ProductImages", currentProduct.get().getProductImages());
-        return "admin/product/update";
+@GetMapping("/admin/product/update/{id}")
+public String getUpdateProductPage(Model model, @PathVariable long id) {
+    Optional<Product> currentProduct = this.productService.fetchProductById(id);
+
+    if (currentProduct.isEmpty()) {
+        model.addAttribute("errorMessage", "Không tìm thấy sản phẩm với ID: " + id);
     }
+
+    Product product = currentProduct.get();
+    model.addAttribute("newProduct", product);
+    model.addAttribute("id", id);
+    model.addAttribute("ProductImages", product.getProductImages());
+    model.addAttribute("categories", categoryService.findAll());
+
+    return "admin/product/update";
+}
+
 
     @PostMapping("/admin/product/update")
     public String updateProduct(Model model,
                                 @ModelAttribute("newProduct") @Valid Product product,
                                 BindingResult newProductBindingResult,
-                                @RequestParam("uploadProductFile") MultipartFile[] files) {
+                                @RequestParam("uploadProductFile") MultipartFile[] files,
+                                RedirectAttributes redirectAttributes) {
 
         List<FieldError> errors = newProductBindingResult.getFieldErrors();
         for (FieldError error : errors ) {
@@ -170,11 +180,7 @@ public class ProductController {
             this.productService.handleSaveProduct(currentProduct);
 
         }
-
-
-
-
-
+        redirectAttributes.addFlashAttribute("successMessage", "Sửa sản phẩm thành công!");
         return "redirect:/admin/product";
     }
 
@@ -185,21 +191,23 @@ public class ProductController {
         return "admin/product/delete";
     }
 
-    @PostMapping("/admin/product/delete")
-    public String postDeleteProduct(Model model, @ModelAttribute("newProduct") Product product) {
-        Optional<Product> optionalProduct = this.productService.fetchProductById(product.getId());
-        if(optionalProduct.isPresent()){
-            Product currentProduct = optionalProduct.get();
-            this.productImageService.deleteProductImagesByProductId(currentProduct.getId());
-        }
-        this.productService.deleteProductById(product.getId());
-        return "redirect:/admin/product";
+@PostMapping("/admin/product/delete")
+public String postDeleteProduct(@RequestParam("id") Long id, RedirectAttributes redirectAttributes) {
+    Optional<Product> optionalProduct = productService.fetchProductById(id);
+    if (optionalProduct.isPresent()) {
+        Product currentProduct = optionalProduct.get();
+        productImageService.deleteProductImagesByProductId(currentProduct.getId());
+        productService.deleteProductById(currentProduct.getId());
+        redirectAttributes.addFlashAttribute("successMessage", "Xóa sản phẩm thành công!");
+    } else {
+        redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy sản phẩm cần xoá.");
     }
+    return "redirect:/admin/product";
+}
 
     @GetMapping("/api/products/search")
     public ResponseEntity<Object> searchProducts(@RequestParam("keyword") String keyword) {
         List<Product> products = this.productService.searchProduct(keyword);
         return ResponseEntity.ok(products);
     }
-
 }

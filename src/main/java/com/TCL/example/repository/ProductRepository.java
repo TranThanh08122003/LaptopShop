@@ -18,21 +18,24 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     Product findFirstById(long id);
     Page<Product> findAll(Pageable pageable);
     Page<Product> findAll(Specification<Product> spec, Pageable pageable);
-
+    List<Product> findByCategoryId(Long categoryId);
     List<Product> findByNameContaining(String name);
     @Query("SELECT p.factory as factory, COUNT(p) as count FROM Product p GROUP BY p.factory")
     List<Map<String, Object>> countProductsByFactory();
 
-    @Query(
-            value = " SELECT p.* " +
-                    " FROM products p " +
-                    "WHERE (?1 IS NULL OR LOWER(p.name) LIKE CONCAT('%',LOWER(?1),'%')) " +
-                    "AND (?2 IS NULL OR LOWER(p.factory) LIKE CONCAT('%',LOWER(?2),'%'))",
-            countQuery =" SELECT count(p.id) " +
-                    " FROM products p " +
-                    "WHERE (?1 IS NULL OR LOWER(p.name) LIKE CONCAT('%',LOWER(?1),'%')) " +
-                    "AND (?2 IS NULL OR LOWER(p.factory) LIKE CONCAT('%',LOWER(?2),'%'))",
-            nativeQuery = true
-    )
-    Page<Product> filterProductByNameAndFactory(String name, String factory, Pageable pageable);
+@Query(
+    value = "SELECT p.* " +
+            "FROM products p " +
+            "WHERE (:name IS NULL OR LOWER(p.name) LIKE CONCAT('%', LOWER(:name), '%')) " +
+            "AND (:factory IS NULL OR LOWER(p.factory) LIKE CONCAT('%', LOWER(:factory), '%')) " +
+            "AND (:categoryId IS NULL OR p.category_id = :categoryId)",
+    countQuery = "SELECT COUNT(p.id) " +
+                 "FROM products p " +
+                 "WHERE (:name IS NULL OR LOWER(p.name) LIKE CONCAT('%', LOWER(:name), '%')) " +
+                 "AND (:factory IS NULL OR LOWER(p.factory) LIKE CONCAT('%', LOWER(:factory), '%')) " +
+                 "AND (:categoryId IS NULL OR p.category_id = :categoryId)",
+    nativeQuery = true
+)
+Page<Product> filterProductByNameFactoryAndCategory(String name, String factory, Long categoryId, Pageable pageable);
+
 }

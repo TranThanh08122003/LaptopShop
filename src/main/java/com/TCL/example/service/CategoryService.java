@@ -45,5 +45,15 @@ public class CategoryService {
         Category category = findById(id);
         categoryRepo.delete(category);
     }
+
+    public List<Category> searchByName(String keyword) {
+        return categoryRepo.findByNameContainingIgnoreCase(keyword);
+    }
+    public List<Category> getAllCategories() {
+        return categoryRepo.findAll();
+    }
+
+
+
 }
 

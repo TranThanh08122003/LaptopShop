@@ -11,7 +11,7 @@ public class ProductCriteriaDTO {
     private Optional<List<String>> target = Optional.empty();
     private Optional<List<String>> price = Optional.empty();
     private Optional<String> sort = Optional.empty();
-
+    private Optional<Long> categoryId = Optional.empty();
     public Optional<String> getPage() {
         return page;
     }
@@ -50,5 +50,13 @@ public class ProductCriteriaDTO {
 
     public void setSort(Optional<String> sort) {
         this.sort = sort;
+    }
+
+    public Optional<Long> getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Optional<Long> categoryId) {
+        this.categoryId = categoryId;
     }
 }

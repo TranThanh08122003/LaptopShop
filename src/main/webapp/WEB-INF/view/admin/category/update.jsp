@@ -31,9 +31,7 @@
                         <div class="col-md-6 col-12 mb-3 col-12 mx-auto">
                             <h2>Cập nhật danh mục</h2>
                             <hr>
-                            <form:form class="row g-3" method="post" action="/admin/category/update"
-                                       modelAttribute="categoryForm" enctype="multipart/form-data">
-
+                            <form:form method="post" action="/admin/category/update/${categoryForm.id}" modelAttribute="categoryForm">
                                 <!-- Ẩn ID -->
                                 <form:hidden path="id" />
 
@@ -58,20 +56,6 @@
                                                    path="description" rows="4"></form:textarea>
                                     ${errorDescription}
                                 </div>
-
-                                <!-- Trạng thái danh mục -->
-                                <div class="col-md-6 col-12 mb-3">
-                                    <c:set var="errorStatus">
-                                        <form:errors path="active" cssClass="invalid-feedback" />
-                                    </c:set>
-                                    <label class="form-label">Trạng thái:</label>
-                                    <form:select class="form-select ${not empty errorStatus ? 'is-invalid' : ''}" path="active">
-                                        <option value="true">Hoạt động</option>
-                                        <option value="false">Không hoạt động</option>
-                                    </form:select>
-                                    ${errorStatus}
-                                </div>
-
                                 <div class="col-12 mb-5">
                                     <button type="submit" class="btn btn-primary">Cập nhật</button>
                                 </div>

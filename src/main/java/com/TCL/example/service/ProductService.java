@@ -6,6 +6,7 @@ import com.TCL.example.repository.*;
 import com.TCL.example.service.specification.ProductSpecs;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -24,20 +25,18 @@ public class ProductService {
     private final CartRepository cartRepository;
     private final CartDetailRepository cartDetailRepository;
     private final UserService userService;
-
     private final OrderRepository orderRepository;
-
     private final OrderDetailRepository orderDetailRepository;
-
-private final CouponRepository couponRepository;
-
+    private final CouponRepository couponRepository;
+    private final CategoryRepository categoryRepository;
 public ProductService(ProductRepository productRepository,
                       CartRepository cartRepository,
                       CartDetailRepository cartDetailRepository,
                       UserService userService,
                       OrderRepository orderRepository,
                       OrderDetailRepository orderDetailRepository,
-                      CouponRepository couponRepository) { 
+                      CouponRepository couponRepository,
+                      CategoryRepository categoryRepository) { 
     this.productRepository = productRepository;
     this.cartRepository = cartRepository;
     this.cartDetailRepository = cartDetailRepository;
@@ -45,6 +44,7 @@ public ProductService(ProductRepository productRepository,
     this.orderRepository = orderRepository;
     this.orderDetailRepository = orderDetailRepository;
     this.couponRepository = couponRepository;
+    this.categoryRepository = categoryRepository;
 }
 
     public Product handleSaveProduct(Product product){
@@ -71,6 +71,12 @@ public ProductService(ProductRepository productRepository,
         }
 
         Specification<Product> combinedSpec = Specification.where(null);
+
+        if (productCriteriaDTO.getCategoryId().isPresent()) {
+            Long categoryId = productCriteriaDTO.getCategoryId().get();
+            combinedSpec = combinedSpec.and((root, query, cb) ->
+                    cb.equal(root.get("category").get("id"), categoryId));
+        }
         if (productCriteriaDTO.getTarget() != null && productCriteriaDTO.getTarget().isPresent()) {
             Specification<Product> currentSpecs = ProductSpecs.matchListTarget(productCriteriaDTO.getTarget().get());
             combinedSpec = combinedSpec.and(currentSpecs);
@@ -301,8 +307,8 @@ public void handlePlaceOrder(User user, HttpSession session,
         return productRepository.countProductsByFactory();
     }
 
-    public Page<Product> getAllProducts(String name, String factory, Pageable pageable) {
-        return productRepository.filterProductByNameAndFactory(name, factory, pageable);
+    public Page<Product> getAllProducts(String name, String factory, Long categoryId, Pageable pageable) {
+        return productRepository.filterProductByNameFactoryAndCategory(name, factory, categoryId, pageable);
     }
 
     public double getAvgRate(Product product) {
@@ -317,7 +323,14 @@ public void handlePlaceOrder(User user, HttpSession session,
         return avgRate;
     }
 
-
-
-
+    public List<Product> findByCategoryId(Long categoryId) {
+    return productRepository.findByCategoryId(categoryId);
+    }
+    public List<Product> findAll() {
+    return productRepository.findAll();
+    }
+    public List<Category> getAllCategories() {
+    return categoryRepository.findAll();
+}
+    
 }

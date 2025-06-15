@@ -68,8 +68,6 @@ public class CouponServiceImpl implements CouponService {
                 .orElseThrow(() -> new RuntimeException("Coupon not found with id " + id));
         }
 
-
-
         @Override
         public void deleteById(Long id) {
             couponRepository.deleteById(id);
@@ -79,5 +77,6 @@ public class CouponServiceImpl implements CouponService {
     public Coupon findByCode(String code) {
         return couponRepository.findByCode(code);
     }
+    
 }
 

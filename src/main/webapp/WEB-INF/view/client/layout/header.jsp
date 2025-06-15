@@ -53,6 +53,20 @@
                 <div class="navbar-nav">
                     <a href="/" class="nav-item nav-link active">Trang Chủ</a>
                     <a href="/products" class="nav-item nav-link">Sản Phẩm</a>
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Danh mục</a>
+                            <div class="dropdown-menu rounded-0 m-0">
+                                        <c:forEach var="category" items="${categories}">
+                                            <li>
+                                                <a href="/products?categoryId=${category.id
+                                                    }<c:if test='${not empty param.sort}'>&amp;sort=${param.sort}</c:if
+                                                    ><c:if test='${not empty param.page}'>&amp;page=${param.page}</c:if>">
+                                                    ${category.name}
+                                                </a>
+                                    </li>
+                                </c:forEach>
+                            </div>
+                        </div>    
                 </div>
                 <div class="d-flex me-0">
                     <button
@@ -93,10 +107,9 @@
                                 <hr class="dropdown-divider">
                             </li>
                             <li>
-                                <form method="post" action="/logout">
-                                    <input type="hidden" name="${_csrf.parameterName}"
-                                           value="${_csrf.token}"/>
-                                    <button class="dropdown-item" href="#">Đăng xuất</button>
+                                <form method="post" action="/logout" style="margin: 0">
+                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                                    <button type="submit" class="dropdown-item">Đăng xuất</button>
                                 </form>
                             </li>
                         </ul>

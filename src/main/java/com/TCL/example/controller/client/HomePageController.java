@@ -1,10 +1,12 @@
 package com.TCL.example.controller.client;
 
+import com.TCL.example.domain.Category;
 import com.TCL.example.domain.DTO.RegisterDTO;
 import com.TCL.example.domain.Order;
 import com.TCL.example.domain.Product;
 import com.TCL.example.domain.User;
 import com.TCL.example.domain.request.ResetPassword;
+import com.TCL.example.service.CategoryService;
 import com.TCL.example.service.OrderService;
 import com.TCL.example.service.ProductService;
 import com.TCL.example.service.UploadService;
@@ -13,6 +15,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -37,7 +41,12 @@ public class HomePageController {
     private final OrderService orderService;
     private final UploadService uploadService;
     private final PasswordEncoder passwordEncoder;
-
+    @Autowired
+    private CategoryService categoryService;
+        @ModelAttribute("categories")
+        public List<Category> populateCategories() {
+            return categoryService.getAllCategories();
+        }
     @GetMapping("/")
     public String getHomePage(Model model) {
         Pageable pageable = PageRequest.of(0, 10);
@@ -166,4 +175,5 @@ public class HomePageController {
        model.addAttribute("resetPassword", new ResetPassword());
        return "client/auth/resetPassword";
    }
+   
 }

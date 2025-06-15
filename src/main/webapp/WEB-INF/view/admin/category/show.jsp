@@ -29,7 +29,7 @@
                             <div class="d-flex justify-content-between">
                                 <h2>Danh sách danh mục</h2>
                                 <div class="d-flex" style="max-height: 40px">
-                                    <input class="form-control me-2" type="search" id="keyword" name="keyword" placeholder="Tìm kiếm" aria-label="Search" style="min-width: 400px" value="${name}">
+                                <input class="form-control me-2" type="search" id="keyword" name="keyword" placeholder="Tìm kiếm" aria-label="Search" value="${keyword}">
                                     <button class="btn btn-outline-success" type="submit" id="searchBtn" style="min-width: 100px">Tìm kiếm</button>
                                 </div>
                                 <a href="/admin/category/create" class="btn btn-primary">Thêm danh mục</a>
@@ -52,9 +52,16 @@
                                         <td>${category.name}</td>
                                         <td>${category.description}</td>
                                         <td>
-                                            <a href="/admin/category/${category.id}" class="btn btn-success">Xem</a>
-                                            <a href="/admin/category/update/${category.id}" class="btn btn-warning">Cập nhật</a>
-                                            <a href="/admin/category/delete/${category.id}" class="btn btn-danger">Xóa</a>
+                                            <form action="/admin/category/update/${category.id}" method="get" style="display:inline;">
+                                                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                                                <button type="submit" class="btn btn-warning">Cập nhật</button>
+                                            </form>
+                                            <form action="/admin/category/delete/${category.id}" method="post" style="display:inline;"
+                                                onsubmit="return confirm('Bạn có chắc chắn muốn xóa danh mục này?');">
+                                                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                                                <button type="submit" class="btn btn-danger">Xóa</button>
+                                            </form>
+
                                         </td>
                                     </tr>
                                 </c:forEach>
@@ -108,13 +115,14 @@
             event.preventDefault();
             let page = $(this).attr('href');
             let keyword = $('#keyword').val();
-            page += `&name=` + encodeURIComponent(keyword);
+            page += `&keyword=` + encodeURIComponent(keyword); 
             location.href = page;
         });
 
+
         $('#searchBtn').click(() => {
             let keyword = $('#keyword').val();
-            location.href = `/admin/category?name=` + encodeURIComponent(keyword);
+            location.href = `/admin/category?keyword=` + encodeURIComponent(keyword); 
         });
     });
 </script>
