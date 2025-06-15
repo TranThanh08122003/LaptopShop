@@ -77,6 +77,19 @@ public class CouponServiceImpl implements CouponService {
     public Coupon findByCode(String code) {
         return couponRepository.findByCode(code);
     }
+
+    public boolean applyCoupon(String code) {
+    Coupon coupon = couponRepository.findByCode(code);
+    if (coupon != null && coupon.isActive() && coupon.getQuantity() > 0) {
+        coupon.setQuantity(coupon.getQuantity() - 1);
+        couponRepository.save(coupon);
+        return true;
+    }
+    return false;
+}
+public void save(Coupon coupon) {
+    couponRepository.save(coupon);
+}
     
 }
 
