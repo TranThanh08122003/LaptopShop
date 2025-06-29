@@ -22,19 +22,19 @@
     <div id="layoutSidenav_content">
         <main>
             <div class="container-fluid px-4">
-                    <c:if test="${not empty successMessage}">
-                        <div id="flashMessage" class="alert alert-success alert-dismissible fade show mt-3" role="alert">
-                            ${successMessage}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    </c:if>
+                <c:if test="${not empty successMessage}">
+                    <div id="flashMessage" class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                        ${successMessage}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                </c:if>
 
                 <h1 class="mt-4">Quản lý sản phẩm</h1>
                 <ol class="breadcrumb mb-4">
                     <li class="breadcrumb-item">Thống kê</li>
                     <li class="breadcrumb-item active">Sản phẩm</li>
-
                 </ol>
+
                 <div class="mt-4">
                     <div class="row">
                         <div class="col-12 mx-auto">
@@ -43,27 +43,25 @@
                                     <input class="form-control me-2" type="search" id="keyword" name="keyword" placeholder="Tìm kiếm" aria-label="Search" style="min-width: 400px" value="${name}">
                                     <button class="btn btn-outline-success" type="submit" id="searchBtn" style="min-width: 100px">Tìm kiếm</button>
                                 </div>
-                                    <select id="factoryName" style="min-width: 200px; max-height: 40px">
-                                        <option value="" ${factoryName == '' ? 'selected' : ''}>Tất cả</option>
-                                        <option value="Asus" ${factoryName == 'Asus' ? 'selected' : ''}>Asus</option>
-                                        <option value="Dell" ${factoryName == 'Dell' ? 'selected' : ''}>Dell</option>
-                                        <option value="Lenovo" ${factoryName == 'Lenovo' ? 'selected' : ''}>Lenovo</option>
-                                        <option value="LG" ${factoryName == 'LG' ? 'selected' : ''}>LG</option>
-                                        <option value="Apple" ${factoryName == 'Apple' ? 'selected' : ''}>Apple</option>
-                                        <option value="Acer" ${factoryName == 'Acer' ? 'selected' : ''}>Acer</option>
-                                    </select>
 
-                                    <select id="categoryId" style="min-width: 200px; max-height: 40px">
-                                        <option value="" ${empty param.categoryId ? 'selected' : ''}>Tất cả danh mục</option>
-                                        <c:forEach var="cat" items="${categories}">
-                                            <option value="${cat.id}" ${param.categoryId == cat.id ? 'selected' : ''}>${cat.name}</option>
-                                        </c:forEach>
-                                    </select>
+                                <select id="factoryName" name="factoryName" style="min-width: 100px; max-height: 40px">
+                                    <option value="" ${empty factoryName ? 'selected' : ''}>Tất cả</option>
+                                    <c:forEach items="${factoryList}" var="f">
+                                        <option value="${f.name}" ${f.name == factoryName ? 'selected' : ''}>${f.name}</option>
+                                    </c:forEach>
+                                </select>
+
+                                <select id="categoryId" name="categoryId" style="min-width: 200px; max-height: 40px">
+                                    <option value="" ${empty categoryId ? 'selected' : ''}>Tất cả danh mục</option>
+                                    <c:forEach var="cat" items="${categories}">
+                                        <option value="${cat.id}" ${categoryId == cat.id ? 'selected' : ''}>${cat.name}</option>
+                                    </c:forEach>
+                                </select>
+
                                 <a href="/admin/product/create" class="btn btn-primary">Thêm sản phẩm</a>
                             </div>
-
                             <hr>
-                            <%-- desgin this table more vibrant and beautiful--%>
+
                             <table class="table table-striped table-hover table-responsive-md">
                                 <thead>
                                 <tr>
@@ -76,55 +74,52 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                         <c:choose>
-                            <c:when test="${not empty products}">
-                                <c:forEach var="product" items="${products}">
-                                    <tr>
-                                        <th>${product.id}</th>
-                                        <td>${product.name}</td>
-                                        <td><fmt:formatNumber value="${product.price}" type="number" /> đ</td>
-                                        <td>${product.factory}</td>
-                                        <td>${product.category.name}</td>
-                                        <td>
-                                            <a href="/admin/product/${product.id}" class="btn btn-success">Xem</a>
-                                            <a href="/admin/product/update/${product.id}" class="btn btn-warning">Cập nhật</a>
-                                            <a href="/admin/product/delete/${product.id}" class="btn btn-danger">Xóa</a>
-                                        </td>
-                                    </tr>
-                                </c:forEach>
-                            </c:when>
-                            <c:otherwise>
-                                <tr>
-                                    <td colspan="6" class="text-center text-danger fw-bold">
-                                        Không tìm thấy sản phẩm nào.
-                                    </td>
-                                </tr>
-                            </c:otherwise>
-                        </c:choose>
+                                <c:choose>
+                                    <c:when test="${not empty products}">
+                                        <c:forEach var="product" items="${products}">
+                                            <tr>
+                                                <th>${product.id}</th>
+                                                <td>${product.name}</td>
+                                                <td><fmt:formatNumber value="${product.price}" type="number" /> đ</td>
+                                                <td>${product.factory}</td>
+                                                <td>${product.category.name}</td>
+                                                <td>
+                                                    <a href="/admin/product/add-quantity/${product.id}" class="btn btn-success btn-sm">+</a>
+                                                    <a href="/admin/product/${product.id}" class="btn btn-success">Xem</a>
+                                                    <a href="/admin/product/update/${product.id}" class="btn btn-warning">Cập nhật</a>
+                                                    <a href="/admin/product/delete/${product.id}" class="btn btn-danger">Xóa</a>
+                                                </td>
+                                            </tr>
+                                        </c:forEach>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <tr>
+                                            <td colspan="6" class="text-center text-danger fw-bold">Không tìm thấy sản phẩm nào.</td>
+                                        </tr>
+                                    </c:otherwise>
+                                </c:choose>
                                 </tbody>
                             </table>
-                            <nav aria-label="Page navigation example">
+
+                            <nav aria-label="Page navigation">
                                 <ul class="pagination justify-content-center">
                                     <li class="page-item">
-                                        <a class="${1 eq currentPage ? 'disabled page-link' : 'page-link'}"
-                                           href="/admin/product?page=${currentPage - 1}" aria-label="Previous">
+                                        <a class="${1 eq currentPage ? 'disabled page-link' : 'page-link'}" href="/admin/product?page=${currentPage - 1}" aria-label="Previous">
                                             <span aria-hidden="true">&laquo;</span>
                                         </a>
                                     </li>
-<c:if test="${totalPages > 0}">
-    <c:forEach begin="0" end="${totalPages - 1}" varStatus="loop">
-        <li class="page-item">
-            <a class="${(loop.index + 1) eq currentPage ? 'active page-link' : 'page-link'}"
-               href="#" data-page="${loop.index + 1}">
-                ${loop.index + 1}
-            </a>
-        </li>
-    </c:forEach>
-</c:if>
-
+                                    <c:if test="${totalPages > 0}">
+                                        <c:forEach begin="0" end="${totalPages - 1}" varStatus="loop">
+                                            <li class="page-item">
+                                                <a class="${(loop.index + 1) eq currentPage ? 'active page-link' : 'page-link'}"
+                                                   href="/admin/product?page=${loop.index + 1}">
+                                                    ${loop.index + 1}
+                                                </a>
+                                            </li>
+                                        </c:forEach>
+                                    </c:if>
                                     <li class="page-item">
-                                        <a class="${currentPage eq totalPages ? 'disabled page-link' : 'page-link'}"
-                                           href="/admin/product?page=${currentPage + 1}" aria-label="Next">
+                                        <a class="${currentPage eq totalPages ? 'disabled page-link' : 'page-link'}" href="/admin/product?page=${currentPage + 1}" aria-label="Next">
                                             <span aria-hidden="true">&raquo;</span>
                                         </a>
                                     </li>
@@ -133,82 +128,52 @@
                         </div>
                     </div>
                 </div>
-                </div>
+            </div>
         </main>
         <jsp:include page="../layout/footer.jsp"/>
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
-        crossorigin="anonymous"></script>
-<script src="/js/scripts.js"></script>
 <script>
     $(document).ready(() => {
+        function buildSearchUrl(baseUrl) {
+            const keyword = $('#keyword').val();
+            const factory = $('#factoryName').val();
+            const categoryId = $('#categoryId').val();
+            const params = [];
 
-        $('.page-link').click(function(event) {
+            if (keyword) params.push("name=" + encodeURIComponent(keyword));
+            if (factory) params.push("factory=" + encodeURIComponent(factory));
+            if (categoryId) params.push("categoryId=" + encodeURIComponent(categoryId));
+
+            return baseUrl + (baseUrl.includes('?') ? '&' : '?') + params.join('&');
+        }
+
+        $('.page-link').click(function (event) {
             event.preventDefault();
-            let page = $(this).attr('href');
-            let keyword = $('#keyword').val();
-            let factoryName = $('#factoryName').val();
-            let categoryId = $('#categoryId').val();
-            if (factoryName === 'Tất cả') factoryName = '';
-
-            page += `&name=` + encodeURIComponent(keyword) +
-                    `&factory=` + encodeURIComponent(factoryName) +
-                    `&categoryId=` + encodeURIComponent(categoryId);
-
-            location.href = page;
+            const pageUrl = $(this).attr('href');
+            location.href = buildSearchUrl(pageUrl);
         });
 
-        $('#categoryId').change(() => {
-            let keyword = $('#keyword').val();
-            let ft = $('#factoryName').val();
-            let categoryId = $('#categoryId').val();
-            if (ft === 'Tất cả') ft = '';
-            location.href = `/admin/product?name=` + encodeURIComponent(keyword) +
-                `&factory=` + encodeURIComponent(ft) +
-                `&categoryId=` + encodeURIComponent(categoryId);
-        });
-        $('#searchBtn').click(() => {
-            let keyword = $('#keyword').val();
-            let ft = $('#factoryName').val();
-            let categoryId = $('#categoryId').val();
-            if (ft === 'Tất cả') {
-                ft = '';
-            }
-            location.href = `/admin/product?name=` + encodeURIComponent(keyword) +
-                `&factory=` + encodeURIComponent(ft) +
-                `&categoryId=` + encodeURIComponent(categoryId);
-        });
+$('#searchBtn').click(() => {
+    location.href = buildSearchUrl("/admin/product");
+});
 
-
-        $('#factoryName').change(() => {
-            let keyword = $('#keyword').val();
-            let ft = $('#factoryName').val();
-            let categoryId = $('#categoryId').val();
-            if (ft === 'Tất cả') {
-                ft = '';
-            }
-            location.href = `/admin/product?name=` + encodeURIComponent(keyword) + `&factory=` + encodeURIComponent(ft);
-        });
     });
 </script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     window.addEventListener('DOMContentLoaded', () => {
         const flash = document.getElementById('flashMessage');
         if (flash) {
             setTimeout(() => {
-                // Dùng Bootstrap collapse để ẩn có hiệu ứng
                 const alert = new bootstrap.Alert(flash);
                 alert.close();
-            }, 3000); // 3000 ms = 3 giây
+            }, 3000);
         }
     });
 </script>
-
 
 </body>
 </html>

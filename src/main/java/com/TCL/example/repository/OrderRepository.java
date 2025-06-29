@@ -17,7 +17,7 @@ import java.util.Optional;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long>{
     List<Order> findByUser(User user);
-
+    List<Order> findByUserId(Long userId);
     Page<Order> findAll(Pageable pageable);
 
     @Query("SELECT DATE(o.createAt) as date, SUM(d.quantity) as counts " +

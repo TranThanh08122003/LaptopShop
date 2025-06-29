@@ -59,6 +59,19 @@
                         </div>
                     </div>
                 </div>
+                <form id="statisticFilterForm" class="mb-3">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <select id="statType" class="form-select">
+                                <option value="week">Tuần này</option>
+                                <option value="lastWeek">Tuần trước</option>
+                                <option value="month">Tháng này</option>
+                                <option value="lastMonth">Tháng trước</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+
                 <div class="row">
                     <div class="col-xl-6">
                         <div class="card mb-4">
@@ -156,7 +169,7 @@
             // Xử lý lỗi ở đây
             console.error(error);
         }
-    });
+        });
 
     // Gọi API để lấy dữ liệu thống kê
     $.ajax({

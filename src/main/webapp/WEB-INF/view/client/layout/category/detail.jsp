@@ -188,7 +188,7 @@
                                     <div class="d-flex">
                                         <img width="26" height="26" src="/images/performance/graphic-card.png"
                                              alt="graphic card" class="fas fa-apple-alt me-2">
-                                        <p>${product.graphic_card}</p>
+                                        <p>${product.graphicCard}</p>
                                     </div>
                                     <div class="d-flex">
                                         <img width="26" height="26" src="/images/performance/laptop.png"

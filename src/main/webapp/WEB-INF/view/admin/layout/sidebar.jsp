@@ -34,6 +34,11 @@
                     <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                     Khuyến mãi
                 </a>
+                <a class="nav-link" href="/admin/factory">
+                    <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                    Hãng
+                </a>
+
                 </c:if>
 
             </div>

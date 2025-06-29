@@ -101,17 +101,14 @@
                                     ${errorProductQuantity}
                                 </div>
 
-                                <div class="col-md-6 col-12 mb-3">
-                                    <label class="form-label">Nhãn hiệu:</label>
-                                    <form:select class="form-select" aria-label="Default select example" path="factory">
-                                        <option value="APPLE">Apple (Macbook)</option>
-                                        <option value="ASUS">Asus</option>
-                                        <option value="LENOVO">Lenovo</option>
-                                        <option value="ACER">Acer</option>
-                                        <option value="DELL">Dell</option>
-                                        <option value="HP">HP</option>
-                                    </form:select>
-                                </div>
+<div class="col-md-6 col-12 mb-3">
+    <label class="form-label">Nhãn hiệu:</label>
+    <form:select class="form-select" path="factory">
+        <form:option value="" label="-- Chọn nhãn hiệu --" />
+        <form:options items="${factoryList}" itemValue="code" itemLabel="name" />
+    </form:select>
+</div>
+
 
                                 <div class="col-md-6 col-12 mb-3">
                                     <label class="form-label">Phân loại:</label>
@@ -128,6 +125,40 @@
                                     <input class="form-control" type="file" id="productFile" accept=".png, .jpg, .jpeg"
                                            name="uploadProductFile" multiple>
                                 </div>
+                                <div class="col-md-6 col-12 mb-3">
+    <label class="form-label">Màn hình (Display):</label>
+    <form:input type="text" class="form-control" path="display" />
+</div>
+
+<div class="col-md-6 col-12 mb-3">
+    <label class="form-label">Card đồ họa (Graphic Card):</label>
+    <form:input type="text" class="form-control" path="graphicCard" />
+</div>
+
+<div class="col-md-6 col-12 mb-3">
+    <label class="form-label">Vi xử lý (Processor):</label>
+    <form:input type="text" class="form-control" path="processor" />
+</div>
+
+<div class="col-md-6 col-12 mb-3">
+    <label class="form-label">RAM:</label>
+    <form:input type="text" class="form-control" path="ram" />
+</div>
+
+<div class="col-md-6 col-12 mb-3">
+    <label class="form-label">Độ phân giải (Resolution):</label>
+    <form:input type="text" class="form-control" path="resolution" />
+</div>
+
+<div class="col-md-6 col-12 mb-3">
+    <label class="form-label">Ổ cứng (Storage):</label>
+    <form:input type="text" class="form-control" path="storage" />
+</div>
+
+<div class="col-md-6 col-12 mb-3">
+    <label class="form-label">Khối lượng (Weight):</label>
+    <form:input type="text" class="form-control" path="weight" />
+</div>
 
                                 <div class="col-12 mb-3">
                                     <img style="max-height: 250px; display:none;" alt="avatar preview"

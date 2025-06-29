@@ -31,7 +31,7 @@ public class Product {
     @DecimalMin(value = "0.0", inclusive = false , message = "Giá sản phẩm phải lớn hơn 0")
     private double price;
 
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductImage> ProductImages;
 
     @NotNull
@@ -54,7 +54,8 @@ public class Product {
     private String storage;
     private String display;
     private String resolution;
-    private String graphic_card;
+    @Column(name = "graphic_card")
+    private String graphicCard;
     private String weight;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "product")

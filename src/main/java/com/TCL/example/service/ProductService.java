@@ -46,7 +46,7 @@ public ProductService(ProductRepository productRepository,
     this.couponRepository = couponRepository;
     this.categoryRepository = categoryRepository;
 }
-
+    @Transactional
     public Product handleSaveProduct(Product product){
         Product savedProduct = this.productRepository.save(product);
         return savedProduct;
@@ -308,6 +308,8 @@ public void handlePlaceOrder(User user, HttpSession session,
     }
 
     public Page<Product> getAllProducts(String name, String factory, Long categoryId, Pageable pageable) {
+            if (name != null && name.isBlank()) name = null;
+            if (factory != null && factory.isBlank()) factory = null;
         return productRepository.filterProductByNameFactoryAndCategory(name, factory, categoryId, pageable);
     }
 

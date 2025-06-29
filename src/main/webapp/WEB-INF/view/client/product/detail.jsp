@@ -188,7 +188,7 @@
                                     <div class="d-flex">
                                         <img width="26" height="26" src="/images/performance/graphic-card.png"
                                              alt="graphic card" class="fas fa-apple-alt me-2">
-                                        <p>${product.graphic_card}</p>
+                                        <p>${product.graphicCard}</p>
                                     </div>
                                     <div class="d-flex">
                                         <img width="26" height="26" src="/images/performance/laptop.png"
@@ -220,7 +220,6 @@
                         </div>
                     </div>
 
-                    <!-- Comments Section Start -->
                     <div>
                         <h4 class="mb-5 fw-bold">Bình luận</h4>
                         <c:if test="${comments.size() == 0}">
@@ -268,7 +267,6 @@
                         </c:forEach>
                     </div>
                     </div>
-                    <!-- Comments Section End -->
 
                     <form method="post">
                         <h4 class="mb-5 fw-bold">Đánh giá và nhận xét</h4>

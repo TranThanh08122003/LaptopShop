@@ -64,7 +64,7 @@ public class OrderService {
     public List<Map<String, Object>> getSalesStatistics(LocalDate startDate, LocalDate endDate) {
         Timestamp startTimestamp = Timestamp.valueOf(startDate.atStartOfDay());
         Timestamp endTimestamp = Timestamp.valueOf(endDate.atStartOfDay());
-        return orderRepository.getSalesStatistics(startTimestamp, endTimestamp);
+        return orderRepository.getSalesStatisticsByFactory(startTimestamp, endTimestamp);
     }
 
     public List<Map<String, Object>> getSalesStatisticsByFactory(LocalDate startDate, LocalDate endDate) {

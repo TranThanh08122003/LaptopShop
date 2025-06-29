@@ -8,7 +8,9 @@ import com.TCL.example.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -41,28 +43,38 @@ public class UserService {
     public User getUserById(long id) {
         return this.userRepository.findFirstById(id);
     }
+@Transactional
+public void deleteAUser(Long userId) {
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
 
-    public void deleteAUser(long id){
-
-        Cart cart = this.cartRepository.findByUser(this.userRepository.findFirstById(id));
-        List<CartDetail> cartDetails = cart.getCartDetails();
-        if(cartDetails != null){
-            for (CartDetail cartDetail : cartDetails){
-                this.cartDetailRepository.deleteById(cartDetail.getId());
+    // ✅ Xóa từng OrderDetail trước
+    List<Order> orders = orderRepository.findByUserId(userId);
+    if (!orders.isEmpty()) {
+        for (Order order : orders) {
+            List<OrderDetail> orderDetails = orderDetailRepository.findByOrder(order);
+            if (!orderDetails.isEmpty()) {
+                orderDetailRepository.deleteAll(orderDetails);
             }
         }
-        this.cartRepository.deleteById(cart.getId());
 
-
-        List<Order> orders = this.orderRepository.findByUser(this.userRepository.findFirstById((id)));
-        for(Order order : orders){
-                this.orderDetailRepository.deleteAll(order.getOrderDetails());
-
-                this.orderRepository.deleteById(order.getId());
-            }
-
-        this.userRepository.deleteById(id);
+        // Sau khi xóa orderDetail thì mới được xóa order
+        orderRepository.deleteAll(orders);
     }
+
+    // ✅ Xử lý xóa giỏ hàng như trước
+    Cart cart = user.getCart();
+    if (cart != null) {
+        List<CartDetail> details = cart.getCartDetails();
+        if (details != null) {
+            cartDetailRepository.deleteAll(details);
+        }
+        cartRepository.delete(cart);
+    }
+
+    // ✅ Xóa cuối cùng là user
+    userRepository.delete(user);
+}
 
     public Role getRoleByName(String name) {
         return this.roleRepository.findByName(name);

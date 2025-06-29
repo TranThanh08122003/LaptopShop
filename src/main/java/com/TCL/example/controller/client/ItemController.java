@@ -156,13 +156,27 @@ public String handlePlaceOrder(
         @RequestParam(value = "couponCode", required = false) String couponCode) {
 
     HttpSession session = request.getSession(false);
-    User currentUser = new User();
+    if (session == null) {
+        return "redirect:/cart";
+    }
+
+    // Tránh xử lý trùng lặp
+    Boolean orderPlaced = (Boolean) session.getAttribute("orderPlaced");
+    if (Boolean.TRUE.equals(orderPlaced)) {
+        return "redirect:/thanks";
+    }
+
+    // Đặt hàng
     long id = (long) session.getAttribute("id");
+    User currentUser = new User();
     currentUser.setId(id);
 
     this.productService.handlePlaceOrder(currentUser, session, receiverName, receiverAddress, receiverPhone, couponCode);
 
-    return "redirect:/thanks"; 
+    // Đánh dấu đã xử lý
+    session.setAttribute("orderPlaced", true);
+
+    return "redirect:/thanks";
 }
 
 
